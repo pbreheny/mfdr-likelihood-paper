@@ -1,5 +1,6 @@
 Older Versions
 !fig/*
+!*.bbl
 ./*.*
 !main.tex
 !mfdr-lik.tex
