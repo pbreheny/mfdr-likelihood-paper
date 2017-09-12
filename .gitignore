@@ -1,0 +1,6 @@
+Older Versions
+!fig/*
+./*.*
+!main.tex
+!mfdr-lik.tex
+!Makefile

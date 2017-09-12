@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+
+\usepackage[left=0.5in,right=0.5in,bottom=0.75in,top=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{fig/}}
+\usepackage[space]{grffile}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\usepackage{natbib}
+
+\renewcommand{\abstract}[1]{
+ \centerline{
+ \begin{minipage}{0.7\linewidth}
+ \hrule
+ \vskip 0.1in
+  \begin{center}
+    {\bf Abstract}
+  \end{center}
+  #1
+ \vskip 0.1in
+ \hrule
+ \end{minipage}}
+ \vskip 0.3in}
+
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{prop}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{clry}{Corollary}
+\newtheorem*{conjecture}{Conjecture}
+
+\providecommand{\x}{\mathbf{x}}
+\providecommand{\X}{\mathbf{X}}
+\providecommand{\y}{\mathbf{y}}
+\providecommand{\bb}{\boldsymbol{\beta}}
+\providecommand{\bh}{\hat{\beta}}
+\providecommand{\bbh}{\hat{\boldsymbol{\beta}}}
+\providecommand{\be}{\boldsymbol{\eta}}
+\providecommand{\beh}{\hat{\boldsymbol{\eta}}}
+\providecommand{\bg}{\boldsymbol{\gamma}}
+\providecommand{\cA}{\mathcal{A}}
+\providecommand{\cC}{\mathcal{C}}
+\providecommand{\cM}{\mathcal{M}}
+\providecommand{\cN}{\mathcal{N}}
+\providecommand{\cS}{\mathcal{S}}
+\providecommand{\FD}{\textrm{FD}}
+\providecommand{\mFDR}{\textrm{mFDR}}
+\providecommand{\zero}{\mathbf{0}}
+
+\title{Marginal false discovery rates for penalized likelihood methods}
+\author{Ryan Miller\\Department of Biostatistics\\University of Iowa
+  \and
+  Patrick Breheny\\Department of Biostatistics\\University of Iowa}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\abstract{The recent popularity of penalized regression in high-dimensional data analysis has lead to a demand for new inferential tools that are valid under such models. False discovery rate control is a well known aspect of other high-dimensional data analysis approaches that has only recently been considered in the context of penalized regression. However much of the current research has been focused primarily on linear lasso regression, despite the availability of software that can fit penalized regression models to all sorts of likelihoods. In this paper we derive a method of estimating the marginal false discovery rate for penalized likelihood methods and demonstrate its application to penalized logistic and penalized Cox regression models. Our approach is flexible and can apply to many penalization schemes including lasso, elastic net, MCP, and MNet.  We use simulation to show the approach to be accurate at large sample sizes while being conservative in smaller samples.  The practical utility of the method is demonstrated on two gene expression data sets with binary and surival outcomes, which we respectively analyze using penalized logistic and penalized Cox regression.}
+
+\input{main}
+
+\bibliographystyle{ims}
+\bibliography{mfdr_references}
+
+\end{document}
