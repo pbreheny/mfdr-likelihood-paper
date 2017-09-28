@@ -36,71 +36,72 @@ While this definition is not as strict as that of most traditional regression ap
 Despite these differences, mFDR is a useful measure to express the reliability of a selected set of variables and have the advantage of providing a clear criteria for determining false discoveries in way that does not depend on the other variables in the model, which is particularly important in penalized regression where the active set of variables in the model changes in relation to the penalty.
 
 \subsection{Penalized Likelihood Optimization}
-Consider data of the usual form $(\y, X)$, where $\y$ is a vector containing the values of a response variable for $i = \{1, \ldots, n\}$ independent observations, and $X$ is a matrix containing the values of $j = \{1, \ldots, p\}$ explanatory variables such that entry $x_{i,j}$ corresponds to the $i^{th}$ subject's value of the $j^{th}$ variable.  We assume the columns of $X$ are standardized such that each variable has a mean of $0$ and a squared sum of $1$.
 
-In the general regression setting the explanatory variables in $X$ are related to $\y$ by a likelihood function that is based upon a linear combination defined by $\be = X\bb$.  Estimates of $\bb$ are found by maximizing the log of the likelihood function, which we will denote as $l(\bb|X,\y)$.  
+Consider data of the usual form $(\y, \X)$, where $\y$ denotes the response variable(s) for $i = \{1, \ldots, n\}$ independent observations, and $\X$ is a matrix containing the values of $j = \{1, \ldots, p\}$ explanatory variables such that entry $x_{i,j}$ corresponds to the value of the $j^{\textrm{th}}$ variable for the $i^{\textrm{th}}$ observation.  We assume the columns of $\X$ are standardized such that each variable has a mean of $0$ and $\sum_i \x_j^2 = n$.
 
-However if $p > n$ maximizing the log-likelihood will not result in unique estimates unless an appropriate penalty, denoted by $P_{\lambda}(\bb)$, is imposed on the size of $\bb$.  Consequently, in the high dimensional setting we are instead interested in the estimates, $\bbh$, which are found by minimizing the objective function:
-
-\begin{equation*}
- Q(\bb|X,\y) =  -\frac{1}{n} l(\bb|X,\y) + P_{\lambda} (\bb)
-\end{equation*}
-
-The estimates, $\bbh$, are referred to as the penalized maximum likelihood solution, and are characterized by the Karush-Kuhn-Tucker (KKT) conditions.  The KKT conditions are both necessary and sufficient for a solution $\bbh$ to be a minimizer of $Q(\bb|X,\y)$.  
-
-For now we focus on the lasso penalty,$ P_{\lambda} (\bb) = \lambda||\bb||_1$.  For the lasso the KKT conditions state that for any strictly convex function $f$, any solution $\bbh$, that is a minimizer of $f(X\bb) + \lambda||\bb||_1$ with respect to $\bb$ must satisfy the following \citep{lasso_kkt}:
+The explanatory variables in $\X$ are related to $\y$ through a probability model involving coefficients $\bb$.  The fit of the model to the data can be summarized using the log-likelihood, which we denote $\ell(\bb|X,\y)$.  In the classical setting, $\bb$ is estimated by maximizing $l(\bb|X,\y)$.  However, this approach is unstable in high dimensions unless an appropriate penalty, denoted $P_{\lambda}(\bb)$, is imposed on the size of $\bb$.
+In this case, $\bbh$ is found by minimizing the objective function
 
 \begin{equation*}
--X’\big(\nabla f(X\bbh)\big) =\lambda\bg
+ Q(\bb|X,\y) =  -\frac{1}{n} \ell(\bb|X,\y) + P_{\lambda} (\bb).
 \end{equation*}
 
-Where for all  $j \in \{1, \ldots, p\}$ 
-\begin{align*}
-\gamma_j & = sign(\hat{\beta}_j) & \text{ if } \hat{\beta}_j \neq 0  \\
-\gamma_j & \in [-1,1]  & \text{  if }  \hat{\beta}_j = 0
-\end{align*}
+In the classical setting, the maximum likelihood estimate is found by setting the score, $\u(\bb) = \nabla_{\bb} \ell(\bb|X,\y)$, equal to zero.  The penalized maximum likelihood estimate, $\bbh$, is found similarly, although allowances must be made for the fact that the penalty function is typically not differentiable.  These penalized score equations are known as the Karush-Kuhn-Tucker (KKT) conditions in the convex optimization literature, and are both necessary and sufficient for a solution $\bbh$ to minimize $Q(\bb|X,\y)$.
 
-In penalized regression framework$f(X\bb) =  -\frac{1}{n}l(\be|X,\y)$ and $ \nabla f(X\bbh) = -\frac{1}{n} u(\beh)$, where $u$ is the unpenalized score function with respect to $\be$.  In the next section we seek to use distributional properties of the score function along with the KKT conditions to derive an estimator that limits the fraction of marginal false discoveries selected by the lasso model.
+In a likelihood-based regression model, the likelihood depends on $\X$ and $\bb$ through a linear predictor $\be = \X\bb$; in other words, we can equivalently express the likelihood as $f(\be|\y)=\ell(\bb|\X,\y)$.  For a regression model with a strictly concave function $f$ and lasso penalty $P_{\lambda} (\bb) = \lambda||\bb||_1$, the KKT conditions state that any solution $\bbh$ must satisfy \citep{lasso_kkt}:
+\begin{equation*}
+\X^T\s(\beh) = \lam\bg,
+\end{equation*}
+where $\s(\be) = \nabla f(\be|\y)$ is the classical score function with respect to $\be$ and for all  $j \in \{1, \ldots, p\}$,
+\begin{alignat*}{2}
+\gamma_j & = \textrm{sign}(\hat{\beta}_j) &\quad \text{if } \hat{\beta}_j &\neq 0 \\
+\gamma_j & \in [-1,1]  &\quad \text{if }  \hat{\beta}_j &= 0.
+\end{alignat*}
+
+%In penalized regression framework $f(X\bb) =  -\frac{1}{n}l(\be|X,\y)$ and $ \nabla f(X\bbh) = -\frac{1}{n} u(\beh)$, where $u$ is the unpenalized score function with respect to $\be$.
+
+In the next section we use the classical distributional properties of the score function along with the KKT conditions to derive an estimator that limits the fraction of marginal false discoveries selected by the lasso model.
 
 \subsection{The mFDR Estimator}
-Suppose variable $j$ is noise variable that is marginally unrelated to $\y$ as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we seek use the KKT conditions to describe the probability that variable $j$ is selected into the lasso regression model with non-zero coefficient.
 
-Let $u(\bb) = X^T l'(\be)$ denote the unpenalized score function with respect to $\bb$.  To proceed we require the following primary assumptions: 
+Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
+
+Let $\u(\bb) = \X^T \s(\be)$ denote the unpenalized score function with respect to $\bb$.  To proceed we require the following primary assumptions: 
 
 \begin{itemize}
 \item A1: Asymptotic normality of the score function: $u(\bb) \xrightarrow{d} N(\zero,  E\big[l''(\bb)\big])$
 \item A2: Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T u'(\be)X_{-j} \rightarrow 0$
-\item A3: Estimation consistency: $\sqrt{n}(\bbh-  \bb)$  is bounded in probability and there exists a matrix $W$ that is a consistent estimator of $E\big[l''(\be)\big]$
+\item A3: Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability and $\W = \nabla^2 f(\beh)$ is a consistent estimator of $E\big[\nabla^2 f(\be)\big]$
 \end{itemize}
 
 \noindent{\textbf{Theorem}:} Provided these conditions are met:
 
 \begin{equation}
-Pr(\hat{\beta}_j \neq 0)  \rightarrow Pr\big(\frac{1}{n}|\x_{j}^T u(\be)| > \lambda\big)
+Pr(\bh_j \neq 0)  \rightarrow Pr\big(\frac{1}{n}|\x_{j}^T \u(\be)| > \lambda\big)
 \end{equation}
 
 \begin{equation}
 \frac{1}{\sqrt{n}}\x_{j}^T u(\be) \rightarrow N\big(0, V\big) 
-\text{   where } V = \frac{\x_{j}^T W \x_{j}}{n}
+\text{   where } V = \lim_{n \to \infty} \tfrac{1}{n}\x_{j}^T \W \x_{j}
 \end{equation}
 
 Which together imply:
 
 \begin{equation}
-Pr(\hat{\beta}_j \neq 0)  = 2\Phi \bigg( \frac{-n\lambda}{\sqrt{ \x_j^TW\x_j}} \bigg)
+Pr(\bh_j \neq 0)  = 2\Phi \bigg( \frac{-n\lambda}{\sqrt{ \x_j^TW\x_j}} \bigg)
 \end{equation}
 
 Where $\Phi$ represents the standard normal cumulative density function.
 
 \noindent{\textbf{Corollary}:}
 
-Using this result to estimate the expected number of marginal false selections simply requires summing over the set of noise variables, however in practice the identity these variables is unknown. Instead summing over all $p$ variables provides a conservative upper bound and leads to the following:
+Using this result to estimate the expected number of marginal false selections simply requires summing over the set of noise variables, however in practice the identity of these variables is unknown. Instead summing over all $p$ variables provides a conservative upper bound and leads to the following:
 
 \begin{align}
-&\widehat{FD} = 2 \sum_{j=1}^{p} \Phi \bigg( \frac{-n\lambda}{\sqrt{\x_j^T W \x_j}} \bigg) & \widehat{mFDR} = \frac{\widehat{FD}}{S}
+&\widehat{FD} = 2 \sum_{j=1}^{p} \Phi \bigg( \frac{-n\lambda}{\sqrt{\x_j^T W \x_j}} \bigg) & \widehat{mFDR} = \frac{\widehat{FD}}{|S|}
 \end{align}
 
-The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $S$, the total number of variables selected by the lasso model.
+The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $|S|$, the total number of variables selected by the lasso model.
 
 \subsection{Proof of Theorem 1}
 
@@ -117,46 +118,46 @@ u(\bbh) \sim u(\bb) + u'(\bb)( \bbh - \bb)
 \end{equation*}
 
 \begin{equation*}
-\implies \x_j^T u(\beh) \sim \x_j^Tu(\be) +  \x_j^T u'(\be) ( \beh - \be)
+\implies \x_j^T \s(\beh) \sim \x_j^T \s(\be) +  \x_j^T f''(\be) ( \beh - \be)
 \end{equation*}
 
 This leads to the selection requirement being approximately equivalent to:
 
 \begin{equation*}
-\frac{1}{n}|\x_j^T \big( u(\be) + u'(\be) (\beh - \be)  \big) | = \lambda
+\frac{1}{n}|\x_j^T \big( \s(\be) + f''(\be) (\beh - \be)  \big) | = \lambda
 \end{equation*}
 
-Because variable $j$ is unrelated to the outcome $\be= X_{-j}\bb_{-j}$.  Additionally we separate $\hat{\be}$ into $X_{-j}\bbh_{-j} + \x_j^T\beta_j$ leading to the following expression for the selection requirement:
+Because variable $j$ is unrelated to the outcome $\be= X_{-j}\bb_{-j}$.  Additionally we separate $\beh$ into $X_{-j}\bbh_{-j} + \x_j^T\beta_j$ leading to the following expression for the selection requirement:
 
 \begin{equation*}
-\frac{1}{n}|\x_j^T u(\be) + \x_j^T u'(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) + \x_j^T u'(\be)\x_j \hat{\beta}_j |  = \lambda
+\frac{1}{n}|\x_j^T \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) + \x_j^T f''(\be)\x_j \hat{\beta}_j |  = \lambda
 \end{equation*}
 
-Because sign$(\hat{\beta}_j) =$ sign$(\x_j^T u(\be))$ the selection requirement can be expressed by the inequality:
+Because sign$(\bh_j) =$ sign$(\x_j^T \s(\be))$ the selection requirement can be expressed by the inequality:
 
 \begin{equation*}
-\frac{1}{n}|\x_j^T  u(\be) + \x_j^T u'(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  \geq \lambda
+\frac{1}{n}|\x_j^T  \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  \geq \lambda
 \end{equation*}
 
 Assumptions A2 and A3 imply:
 
 \begin{equation*}
-\frac{1}{n}\x_j^T u'(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
+\frac{1}{n}\x_j^T f''(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
 \end{equation*}
 
 Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4). 
 
 \subsection{The mFDR Estimator for Other Penalties}
 
-Because our estimator is derived directly from the KKT conditions, which tend to be similar for many commonly used penalties, it is straightforward to extend to other penalties and will often result in an identical estimator.
+Because our estimator is derived directly from the KKT conditions, which tend to be similar for many commonly used penalties, it is straightforward to extend to other penalties and often results in an identical estimator.
 
-As a demonstration we consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters $\lambda_1, \lambda_2$. In the general setting, the elastic net solution is found by minimizing $f(X\bb) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. In order for variable $j$ to be selected, the KKT conditions of the elastic net \citep{lasso_kkt} require:
+As a demonstration we consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters $\lambda_1, \lambda_2$. In the general setting, the elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. In order for $\hat{\beta_j} \neq = 0$, the KKT conditions of the elastic net \citep{lasso_kkt} require:
 
 \begin{equation*}
-\frac{1}{n}\x_{j}^T u(\beh) = \lambda_1 sign(\hat{\beta}_j) + \lambda_2 \hat{\beta}_j
+\frac{1}{n}\x_{j}^T \s(\beh) = \lambda_1 sign(\hat{\beta}_j) + \lambda_2 \hat{\beta}_j
 \end{equation*}
 
-Because only the right hand side of the conditions have changed, we are able to follow a derivation analogous that of section 2.2 we arrive at the inequality:
+Since only the right hand side of the condition has changed, we can follow the previous derivation to arrive at the inequality:
 
 \begin{equation*}
 \frac{1}{n}|\x_j^T  u(\be) + \x_j^T u'(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  > \lambda_1  + \lambda_2|\hat{\beta}_j|
@@ -164,15 +165,15 @@ Because only the right hand side of the conditions have changed, we are able to 
 
 Because $\lambda_1  + \lambda_2|\hat{\beta}_j| \geq \lambda_1$ the same inequality that we derived for the lasso penalty will also apply to elastic net, thereby allowing for an identical estimator to be used.
 
-Other notable penalties that result in the same estimator are the minimax concave penalty (MCP) introduced by \citet{MCP} and the smoothly clipped absolute deviations (SCAD) penalty introduced by \citet{SCAD}.  Both MCP and SCAD are non-convex penalties that will produce sparse estimates like the lasso but have the benefit of relaxing the shrinkage towards zero of variables with large effects.  This leads to solutions that are more sparse with less biased coefficient estimates for the selected variables.  These penalties often achieve predictive accuracy similar to the lasso while selecting fewer features, making them appealing choices when the goal is selection inference.
+Other notable penalties resulting in same estimator are the minimax concave penalty (MCP) introduced by \citet{MCP} and the smoothly clipped absolute deviations (SCAD) penalty introduced by \citet{SCAD}.  Both MCP and SCAD are non-convex penalties that produce sparse estimates like the lasso, but have the benefit of relaxing their penalization on variables with large effects.  This leads to solutions with greater sparsity and less biased coefficient estimates.
 
-While these penalties all lead to the same estimator asymptotically, the choice of penalty will influence what conditions are required for assumption A3 to be met. This can be seen in simulation results presented later in the paper that include both lasso and MCP penalties.
+Although many penalties lead to the same estimator asymptotically, the exact conditions required for assumption A3 will differ. This is seen in the simulation studies presented later in the paper, which include results for both lasso and MCP penalties.
 
 \subsection{Logistic Regression}
 
 Thus far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression.  
 
-In this setting $y_i$ follows a  Bernoulli distribution with success probability $\pi_i$.  The logit of $\pi_i$ is modeled as a linear function of $X$, resulting in a likelihood is the product of independent Bernoulli distributions with parameters $\pi_i = \frac{\exp(\eta_i)} {1 + \exp(\eta_i)}$.
+Here $y_i$ follows a  Bernoulli distribution with success probability $\pi_i$.  The logit of $\pi_i$ is modeled as a linear function of $X$, resulting in a likelihood is the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \frac{\exp(\eta_i)} {1 + \exp(\eta_i)}$.
 
 \begin{equation*}
 L(\be) = \prod_{i=1}^{n} \pi_i^{y_i} (1 - \pi_i)^{1 - y_i}
