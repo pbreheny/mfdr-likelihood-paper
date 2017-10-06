@@ -46,23 +46,24 @@ In this case, $\bbh$ is found by minimizing the objective function
  Q(\bb|X,\y) =  -\frac{1}{n} \ell(\bb|X,\y) + P_{\lambda} (\bb).
 \end{equation*}
 
-In the classical setting, the maximum likelihood estimate is found by setting the score, $\u(\bb) = \nabla_{\bb} \ell(\bb|X,\y)$, equal to zero.  The penalized maximum likelihood estimate, $\bbh$, is found similarly, although allowances must be made for the fact that the penalty function is typically not differentiable.  These penalized score equations are known as the Karush-Kuhn-Tucker (KKT) conditions in the convex optimization literature, and are both necessary and sufficient for a solution $\bbh$ to minimize $Q(\bb|X,\y)$.
+In the classical setting, the maximum likelihood estimate is found by setting the score, $\u(\bb) = \nabla \ell(\bb|X,\y)$, equal to zero.  The penalized maximum likelihood estimate, $\bbh$, is found similarly, although allowances must be made for the fact that the penalty function is typically not differentiable.  These penalized score equations are known as the Karush-Kuhn-Tucker (KKT) conditions in the convex optimization literature, and are both necessary and sufficient for a solution $\bbh$ to minimize $Q(\bb|X,\y)$.
 
 In a likelihood-based regression model, the likelihood depends on $\X$ and $\bb$ through a linear predictor $\be = \X\bb$; in other words, we can equivalently express the likelihood as $f(\be|\y)=\ell(\bb|\X,\y)$.  For a regression model with a strictly concave function $f$ and lasso penalty $P_{\lambda} (\bb) = \lambda||\bb||_1$, the KKT conditions state that any solution $\bbh$ must satisfy \citep{lasso_kkt}:
 \begin{equation*}
 \X^T\s(\beh) = \lam\bg,
 \end{equation*}
-where $\s(\be) = \nabla f(\be|\y)$ is the classical score function with respect to $\be$ and for all  $j \in \{1, \ldots, p\}$,
+where $\s(\be) = \nabla f(\be|\y)$ is the classical score function with respect to $\be$, and for all $j \in \{1, \ldots, p\}$,
 \begin{alignat*}{2}
 \gamma_j & = \textrm{sign}(\hat{\beta}_j) &\quad \text{if } \hat{\beta}_j &\neq 0 \\
-\gamma_j & \in [-1,1]  &\quad \text{if }  \hat{\beta}_j &= 0.
+\gamma_j & \in [-1,1]  &\quad \text{if }  \hat{\beta}_j &= 0
 \end{alignat*}
+denotes the subgradient of $|\bh_j|$.
 
 %In penalized regression framework $f(X\bb) =  -\frac{1}{n}l(\be|X,\y)$ and $ \nabla f(X\bbh) = -\frac{1}{n} u(\beh)$, where $u$ is the unpenalized score function with respect to $\be$.
 
 In the next section we use the classical distributional properties of the score function along with the KKT conditions to derive an estimator that limits the fraction of marginal false discoveries selected by the lasso model.
 
-\subsection{The mFDR Estimator}
+\subsection{The mFDR Estimator: Version 1}
 
 Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
 
@@ -103,7 +104,7 @@ Using this result to estimate the expected number of marginal false selections s
 
 The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $|S|$, the total number of variables selected by the lasso model.
 
-\subsection{Proof of Theorem 1}
+\begin{proof}
 
 We begin with the KKT conditions required for the selection of variable $j$.  These conditions directly imply:
 
@@ -145,8 +146,101 @@ Assumptions A2 and A3 imply:
 \frac{1}{n}\x_j^T f''(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
 \end{equation*}
 
-Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4). 
+Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4).\qedhere
 
+\end{proof}
+
+\subsection{The mFDR Estimator: Version 2}
+
+Let $\s(\be)=\nabla f(\be|y)$, $\W(\be) = -\nabla^2 f(\be|y)$, $\u(\bb)=\nabla \ell(\bb|\X,\y)$, and $\H(\bb)=\nabla^2 \ell(\bb|\X,\y)$.  
+
+In what follows, let $\u(\be) = \nabla$
+
+Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
+
+Let $\u(\bb) = \X^T \s(\be)$ denote the unpenalized score function with respect to $\bb$.  To proceed we require the following primary assumptions:
+
+\begin{itemize}
+\item A1: Asymptotic normality of the score function: $u(\bb) \xrightarrow{d} N(\zero,  E\big[l''(\bb)\big])$
+\item A2: Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T u'(\be)X_{-j} \rightarrow 0$
+\item A3: Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability and $\W = \nabla^2 f(\beh)$ is a consistent estimator of $-E\big[\nabla^2 f(\be)\big]$
+\end{itemize}
+
+\noindent{\textbf{Theorem}:} Provided these conditions are met:
+
+\begin{equation}
+Pr(\bh_j \neq 0)  \rightarrow Pr\big(\frac{1}{n}|\x_{j}^T \u(\be)| > \lambda\big)
+\end{equation}
+
+\begin{equation}
+\frac{1}{\sqrt{n}}\x_{j}^T u(\be) \rightarrow N\big(0, V\big) 
+\text{   where } V = \lim_{n \to \infty} \tfrac{1}{n}\x_{j}^T \W \x_{j}
+\end{equation}
+
+Which together imply:
+
+\begin{equation}
+Pr(\bh_j \neq 0)  = 2\Phi \bigg( \frac{-n\lambda}{\sqrt{ \x_j^TW\x_j}} \bigg)
+\end{equation}
+
+Where $\Phi$ represents the standard normal cumulative density function.
+
+\noindent{\textbf{Corollary}:}
+
+Using this result to estimate the expected number of marginal false selections simply requires summing over the set of noise variables, however in practice the identity of these variables is unknown. Instead summing over all $p$ variables provides a conservative upper bound and leads to the following:
+
+\begin{align}
+&\widehat{FD} = 2 \sum_{j=1}^{p} \Phi \bigg( \frac{-n\lambda}{\sqrt{\x_j^T W \x_j}} \bigg) & \widehat{mFDR} = \frac{\widehat{FD}}{|S|}
+\end{align}
+
+The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $|S|$, the total number of variables selected by the lasso model.
+
+\begin{proof}
+
+We begin with the KKT conditions required for the selection of variable $j$.  These conditions directly imply:
+
+\begin{equation*}
+Pr(\hat{\beta}_j \neq 0)  = Pr\big(\frac{1}{n}|\x_{j}^T u(\beh)| = \lambda\big)  = Pr\big(\frac{1}{n}|u(\bbh)_j| = \lambda\big)
+\end{equation*}
+
+Next we approximate $u(\bbh)$ using a first order Taylor Series expansion centered at $\bb$:
+
+\begin{equation*}
+u(\bbh) \sim u(\bb) + u'(\bb)( \bbh - \bb) 
+\end{equation*}
+
+\begin{equation*}
+\implies \x_j^T \s(\beh) \sim \x_j^T \s(\be) +  \x_j^T f''(\be) ( \beh - \be)
+\end{equation*}
+
+This leads to the selection requirement being approximately equivalent to:
+
+\begin{equation*}
+\frac{1}{n}|\x_j^T \big( \s(\be) + f''(\be) (\beh - \be)  \big) | = \lambda
+\end{equation*}
+
+Because variable $j$ is unrelated to the outcome $\be= X_{-j}\bb_{-j}$.  Additionally we separate $\beh$ into $X_{-j}\bbh_{-j} + \x_j^T\beta_j$ leading to the following expression for the selection requirement:
+
+\begin{equation*}
+\frac{1}{n}|\x_j^T \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) + \x_j^T f''(\be)\x_j \hat{\beta}_j |  = \lambda
+\end{equation*}
+
+Because sign$(\bh_j) =$ sign$(\x_j^T \s(\be))$ the selection requirement can be expressed by the inequality:
+
+\begin{equation*}
+\frac{1}{n}|\x_j^T  \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  \geq \lambda
+\end{equation*}
+
+Assumptions A2 and A3 imply:
+
+\begin{equation*}
+\frac{1}{n}\x_j^T f''(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
+\end{equation*}
+
+Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4).\qedhere
+
+\end{proof}
+  
 \subsection{The mFDR Estimator for Other Penalties}
 
 Because our estimator is derived directly from the KKT conditions, which tend to be similar for many commonly used penalties, it is straightforward to extend to other penalties and often results in an identical estimator.
@@ -202,23 +296,21 @@ Similar to logistic regression setting, the mFDR estimator for the Cox regressio
 
 In this section we study several properties of the mFDR estimator via simulation. In each study $j \in \{1, \ldots, p\}$ covariates are generated from standard normal distributions for$i = 1, \ldots, n$ subjects. 
 
-For logistic regression scenarios, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \frac{\exp(\x_i^T \bb)} {1 + \exp(\x_i^T \bb)}$.  In Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$.  
+For logistic regression scenarios, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \frac{\exp(\x_i^T \bb)} {1 + \exp(\x_i^T \bb)}$. In Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$. And in linear regression scenarios the outcome is drawn from the model $y_i = \x_i\bb + N(0,\sigma^2)$.
 
-Details regarding the parameters $p$, $n$, and $\bb$, the correlation between variables, and censoring are described individually for each simulation.
+Details regarding $p$, $n$, and $\bb$, the correlation between variables, and censoring are described individually for each simulation.
 
 \subsection{Inaccuracy, sample size, and correlated variables}
 
-Inaccuracy of the mFDR will arise from two places. First from the normal approximation of the score function, and second from the convergence of the remainder term, $\frac{1}{n}\x_j^T W X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})$, to zero.  We assess the accuracy of the estimator by looking at the role of two factors, sample size and correlation between noise variables, on the how close $\widehat{mFDR}$ is to the nominal rate.
+Inaccuracy of $\widehat{mFDR}$ arises from two places, first from the normal approximation of the score function, and second from the convergence of the term, $\frac{1}{n}\x_j^T W X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})$, to zero. In this simulation we assess accuracy by looking at the effect of two factors, sample size and correlation between noise variables, on the how close $\widehat{mFDR}$ is to the nominal rate. This is done by varying the sample size and the correlation structure of the noise variable and comparing the estimated mFDR to the true proportion of false variables at each value of a fixed $\lambda$ sequence averaged across 1,000 simulation iterations.
 
-We achieve this by varying the sample size and the correlation structure of the false variables and compare the estimated mFDR to the true proportion of false variables at each value of a fixed $\lambda$ sequence averaged across 1,000 simulation iterations.
+We generate data with $p = 40$ with $\beta_{1:4} = \frac{10}{\sqrt{n}}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 by increments of 100.  We chose $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early in the $\lambda$ sequence and false selections are extremely rare until the very end of $\lambda$ sequence where they occur rapidly.
 
-We generate data with $p = 40$ with $\beta_{1:4} = \frac{10}{\sqrt{n}}$ and $\beta_{5:40} = 0$ while varying $n$.  We chose $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early in the $\lambda$ sequence while false selections are extremely rare until the very end of $\lambda$ sequence where they occur rapidly.
-
-Separate simulations were conducted for twelve different scenarios consisting of each possible combination of two different correlation structures: independent noise variables and correlated noise variables, and three different regression methods: linear regression, logistic regression, and Cox regression, and two different penalties: lasso and MCP.  In the correlated setting false variables are given an autoregressive correlation structure based upon their index such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the average estimated mFDR of each method at the $\lambda$ value where the average empirical mFDR is 10\%.
+Separate simulations were conducted to assess twelve different scenarios consisting of each possible combination of two different correlation structures: independent noise variables and correlated noise variables, as well as three different regression methods: linear regression, logistic regression, and Cox regression, and two different penalties: lasso and MCP. In the correlated setting false variables are given an autoregressive correlation structure based upon their index such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the average estimated mFDR of each method at the $\lambda$ value where the average empirical mFDR is 10\%.
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[scale = .5]{converge.pdf}
+  \includegraphics[scale = .75]{conv_gg.pdf}
   \caption{Inaccuracy of the mFDR estimator }
 \end{figure}
 
