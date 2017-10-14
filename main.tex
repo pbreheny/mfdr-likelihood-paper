@@ -42,117 +42,72 @@ Consider data of the usual form $(\y, \X)$, where $\y$ denotes the response vari
 The explanatory variables in $\X$ are related to $\y$ through a probability model involving coefficients $\bb$.  The fit of the model to the data can be summarized using the log-likelihood, which we denote $\ell(\bb|X,\y)$.  In the classical setting, $\bb$ is estimated by maximizing $l(\bb|X,\y)$.  However, this approach is unstable in high dimensions unless an appropriate penalty, denoted $P_{\lambda}(\bb)$, is imposed on the size of $\bb$.
 In this case, $\bbh$ is found by minimizing the objective function
 
-\begin{equation*}
- Q(\bb|X,\y) =  -\frac{1}{n} \ell(\bb|X,\y) + P_{\lambda} (\bb).
-\end{equation*}
+\al{eq:obj}{
+  Q(\bb|X,\y) =  -\frac{1}{n} \ell(\bb|X,\y) + P_{\lambda} (\bb).
+}
 
 In the classical setting, the maximum likelihood estimate is found by setting the score, $\u(\bb) = \nabla \ell(\bb|X,\y)$, equal to zero.  The penalized maximum likelihood estimate, $\bbh$, is found similarly, although allowances must be made for the fact that the penalty function is typically not differentiable.  These penalized score equations are known as the Karush-Kuhn-Tucker (KKT) conditions in the convex optimization literature, and are both necessary and sufficient for a solution $\bbh$ to minimize $Q(\bb|X,\y)$.
 
-In a likelihood-based regression model, the likelihood depends on $\X$ and $\bb$ through a linear predictor $\be = \X\bb$; in other words, we can equivalently express the likelihood as $f(\be|\y)=\ell(\bb|\X,\y)$.  For a regression model with a strictly concave function $f$ and lasso penalty $P_{\lambda} (\bb) = \lambda||\bb||_1$, the KKT conditions state that any solution $\bbh$ must satisfy \citep{lasso_kkt}:
-\begin{equation*}
-\X^T\s(\beh) = \lam\bg,
-\end{equation*}
-where $\s(\be) = \nabla f(\be|\y)$ is the classical score function with respect to $\be$, and for all $j \in \{1, \ldots, p\}$,
+In a likelihood-based regression model, the likelihood depends on $\X$ and $\bb$ through a linear predictor $\be = \X\bb$; in other words, we can equivalently express the likelihood in terms of a loss function $f(\be|\y)=-\ell(\bb|\X,\y)$.
+In what follows, we assume that the loss function is strictly convex with respect to the linear predictors $\be$; note that this does not imply strict convexity with respect to $\bb$.
+Under these conditions, any solution $\bbh$ that minimizes \eqref{eq:obj} with the lasso penalty $P_{\lambda} (\bb) = \lambda||\bb||_1$ must satisfy \citep{lasso_kkt}:
 \begin{alignat*}{2}
-\gamma_j & = \textrm{sign}(\hat{\beta}_j) &\quad \text{if } \hat{\beta}_j &\neq 0 \\
-\gamma_j & \in [-1,1]  &\quad \text{if }  \hat{\beta}_j &= 0
+  \tfrac{1}{n}u_j(\bbh) &= \lam \textrm{ sign}(\hat{\beta}_j) &\quad \text{if } \hat{\beta}_j &\neq 0 \\
+  \tfrac{1}{n}u_j(\bbh) &\in [-\lam,\lam]  &\quad \text{if }  \hat{\beta}_j &= 0
 \end{alignat*}
-denotes the subgradient of $|\bh_j|$.
+for $j \in \{1, \ldots, p\}$.
 
 %In penalized regression framework $f(X\bb) =  -\frac{1}{n}l(\be|X,\y)$ and $ \nabla f(X\bbh) = -\frac{1}{n} u(\beh)$, where $u$ is the unpenalized score function with respect to $\be$.
 
-In the next section we use the classical distributional properties of the score function along with the KKT conditions to derive an estimator that limits the fraction of marginal false discoveries selected by the lasso model.
+\subsection{Estimation of mFDR}
 
-\subsection{The mFDR Estimator: Version 1}
+In this section, we use classical distributional properties of the score function along with the KKT conditions given above to derive an estimator for the number of marginal false discoveries in the lasso model.
+The basic intuition behind the derivation is that, given certain regularity conditions, if feature $j$ is a marginally independent of $\y$, then $Pr(\bh_j \neq 0)$ is approximately equal to $Pr(\tfrac{1}{n}\abs{u_j(\bb)} > \lam)$, where the classical score statistic $\u$ is evaluated at the true value of $\bb$ provided that the log-likelihood is correctly specified (i.e., that the model assumptions hold).
+Given this result, the asymptotic normality of the score allows us to estimate this tail probability, and with it, the expected number of marginal false discoveries at a given value of $\lam$.
 
-Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
-
-Let $\u(\bb) = \X^T \s(\be)$ denote the unpenalized score function with respect to $\bb$.  To proceed we require the following primary assumptions: 
+Three regularity conditions are required for these theoretical results to hold.  These are given below, where we let $\W = \nabla^2f$ denote the $n \times n$ matrix of second derivatives of the loss function with respect to $\be$, such that the classical Hessian matrix $\nabla^2 \ell (\bb) = -\X^T\W\X$.  We use $\W$ to denote this matrix evaluated at the true coefficients $\beta^*$, and $\hat{\W}$ if evaluated at the lasso estimate.  In addition, we let $v_j=\frac{1}{n}\x_j^T\W\x_j$, with $\hat{v}_j$ defined similarly.
 
 \begin{itemize}
-\item A1: Asymptotic normality of the score function: $u(\bb) \xrightarrow{d} N(\zero,  E\big[l''(\bb)\big])$
-\item A2: Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T u'(\be)X_{-j} \rightarrow 0$
-\item A3: Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability and $\W = \nabla^2 f(\beh)$ is a consistent estimator of $-E\big[\nabla^2 f(\be)\big]$
+\item (A1) Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
+\item (A2) Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T\W\X_{-j} \inP \zero$.
+\item (A3) Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability.
 \end{itemize}
 
-\noindent{\textbf{Theorem}:} Provided these conditions are met:
+We can now formally state our main theoretical result.  In interpreting this result, it is important to keep in mind that only features that are marginally independent of the outcome will satisfy both assumption (A2) and $\beta_j=0$.
+In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:diagram}, but not variable $B$: although the regression coefficient for $B$ is zero, its correlation with $A$ violates (A2).
 
-\begin{equation}
-Pr(\bh_j \neq 0)  \rightarrow Pr\big(\frac{1}{n}|\x_{j}^T \u(\be)| > \lambda\big)
-\end{equation}
-
-\begin{equation}
-\frac{1}{\sqrt{n}}\x_{j}^T u(\be) \rightarrow N\big(0, V\big) 
-\text{   where } V = \lim_{n \to \infty} \tfrac{1}{n}\x_{j}^T \W \x_{j}
-\end{equation}
-
-Which together imply:
-
-\begin{equation}
-Pr(\bh_j \neq 0)  = 2\Phi \bigg( \frac{-n\lambda}{\sqrt{ \x_j^TW\x_j}} \bigg)
-\end{equation}
-
-Where $\Phi$ represents the standard normal cumulative density function.
-
-\noindent{\textbf{Corollary}:}
-
-Using this result to estimate the expected number of marginal false selections simply requires summing over the set of noise variables, however in practice the identity of these variables is unknown. Instead summing over all $p$ variables provides a conservative upper bound and leads to the following:
-
-\begin{align}
-&\widehat{FD} = 2 \sum_{j=1}^{p} \Phi \bigg( \frac{-n\lambda}{\sqrt{\x_j^T W \x_j}} \bigg) & \widehat{mFDR} = \frac{\widehat{FD}}{|S|}
-\end{align}
-
-The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $|S|$, the total number of variables selected by the lasso model.
+\begin{theorem}
+  \label{Thm:main}
+  For any solution $\bbh$ of the lasso-penalized objective \eqref{eq:obj}, we have $\bh_j \neq 0$ if and only if
+  \as{\abs{\tfrac{1}{n}u_j(\bbh) + v_j\bh_j} > \lam.}
+  Furthermore, provided that that (A1)-(A3) are satisfied and $\beta_j=0$,
+  \as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
+\end{theorem}
 
 \begin{proof}
-
-We begin with the KKT conditions required for the selection of variable $j$.  These conditions directly imply:
-
-\begin{equation*}
-Pr(\hat{\beta}_j \neq 0)  = Pr\big(\frac{1}{n}|\x_{j}^T u(\beh)| = \lambda\big)  = Pr\big(\frac{1}{n}|u(\bbh)_j| = \lambda\big)
-\end{equation*}
-
-Next we approximate $u(\bbh)$ using a first order Taylor Series expansion centered at $\bb$:
-
-\begin{equation*}
-u(\bbh) \sim u(\bb) + u'(\bb)( \bbh - \bb) 
-\end{equation*}
-
-\begin{equation*}
-\implies \x_j^T \s(\beh) \sim \x_j^T \s(\be) +  \x_j^T f''(\be) ( \beh - \be)
-\end{equation*}
-
-This leads to the selection requirement being approximately equivalent to:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T \big( \s(\be) + f''(\be) (\beh - \be)  \big) | = \lambda
-\end{equation*}
-
-Because variable $j$ is unrelated to the outcome $\be= X_{-j}\bb_{-j}$.  Additionally we separate $\beh$ into $X_{-j}\bbh_{-j} + \x_j^T\beta_j$ leading to the following expression for the selection requirement:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) + \x_j^T f''(\be)\x_j \hat{\beta}_j |  = \lambda
-\end{equation*}
-
-Because sign$(\bh_j) =$ sign$(\x_j^T \s(\be))$ the selection requirement can be expressed by the inequality:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T  \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  \geq \lambda
-\end{equation*}
-
-Assumptions A2 and A3 imply:
-
-\begin{equation*}
-\frac{1}{n}\x_j^T f''(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
-\end{equation*}
-
-Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4).\qedhere
-
+  The first remark follows directly from the KKT conditions and the fact that, if the loss function is strictly convex, then $\W$ is positive definite and $v_j$ is positive.  The asymptotic normality of the score function (A1) implies that the following Taylor series expansion holds:
+\as{\u(\bbh) = \u(\bb) - \X^T\W\X(\bbh - \bb) + o_p(n)(\bbh-\bb).}
+Since $\beta_j=0$, we then have
+\as{u_j(\bbh) &= u_j(\bb) - \x_j^T\W\X_{-j}(\bbh_{-j} - \bb_{-j}) - \x_j^T\W\x_j\bh_j + o_p(n)\bh_j,\\
+\intertext{or}
+\tfrac{1}{\sqrt{n}}u_j(\bbh) + \sqrt{n}v_j\bh_j &= \tfrac{1}{\sqrt{n}}u_j(\bb) - [\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{n}\bh_j.}
+Dividing both sides by $\sqrt{v_j}$, the first term converges to $N(0,1)$ by (A1), the second term goes to zero by conditions (A2) and (A3), and the third term also goes to zero by (A3).
 \end{proof}
 
-\subsection{The mFDR Estimator: Version 2}
+Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ is selected, given that it is marginally independent of the outcome, is approximately the probability that a random variable following a $N(0, v_j/n)$ distribution exceeds $\lam$ in absolute value.
+In principle, the expected number of marginal false selections could be obtained by summing this probability over the set of marginally independent noise variables; in practice, since the identity of this set is unknown, a conservative alternative is to sum over all $p$ variables.
+This gives the following estimators for the number and rate of marginal false discoveries:
+\al{eq:mfdr}{
+  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(-\lam\sqrt{n/v_j}\right)\\
+  \widehat{mFDR} &= \frac{\widehat{FD}}{|S|},
+}
+where $S$ is the set of selected variables and $|S|$ its size.
 
-Let $\s(\be)=\nabla f(\be|y)$, $\W(\be) = -\nabla^2 f(\be|y)$, $\u(\bb)=\nabla \ell(\bb|\X,\y)$, and $\H(\bb)=\nabla^2 \ell(\bb|\X,\y)$.  
+Mention something about upper bound?
+
+\subsection{The mFDR Estimator (OLD)}
+
+TEMPORARILY LEAVING THIS SECTION AROUND FOR COMPARISON
 
 Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
 
