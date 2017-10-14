@@ -98,7 +98,7 @@ Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ i
 In principle, the expected number of marginal false selections could be obtained by summing this probability over the set of marginally independent noise variables; in practice, since the identity of this set is unknown, a conservative alternative is to sum over all $p$ variables.
 This gives the following estimators for the number and rate of marginal false discoveries:
 \al{eq:mfdr}{
-  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(-\lam\sqrt{n/v_j}\right)\\
+  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(-\lam\sqrt{n/\hat{v}_j}\right)\\
   \widehat{mFDR} &= \frac{\widehat{FD}}{|S|},
 }
 where $S$ is the set of selected variables and $|S|$ its size.
