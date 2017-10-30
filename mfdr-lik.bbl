@@ -1,4 +1,4 @@
-\begin{thebibliography}{17}
+\begin{thebibliography}{19}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 \expandafter\ifx\csname url\endcsname\relax
   \def\url#1{\texttt{#1}}\fi
@@ -11,6 +11,11 @@
   approach to multiple testing.
 \newblock \textit{Journal of the Royal Statistical Society}, \textbf{57}
   289--300.
+
+\bibitem[{Breheny(2017)}]{Breheny2017}
+\textsc{Breheny, P.} (2017).
+\newblock Marginal false discovery rates for penalized regression models.
+\newblock \textit{arXiv preprint arXiv:1607.05636}.
 
 \bibitem[{Breheny and Huang(2011)}]{Breheny2011}
 \textsc{Breheny, P.} and \textsc{Huang, J.} (2011).
@@ -86,6 +91,12 @@
 \newblock Gene expression-based survival prediction in lung adenocarcinoma: A
   multi-site, blinded validation study.
 \newblock \textit{Nature Medicine}.
+
+\bibitem[{Simon(2011)}]{Simon2011}
+\textsc{Simon, N.} (2011).
+\newblock Regularization paths for cox’s proportional hazards model via
+  coordinate descent.
+\newblock \textit{Journal of Statistical Software}, \textbf{39} 1--22.
 
 \bibitem[{Spira et~al.(2007)Spira, Beane, Shah, Steiling, Liu, Schembri,
   Gilman, Dumas, Calner, Sebastiani, Sridhar, Beamis, Lamb, Anderson, Gerry,
