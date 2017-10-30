@@ -117,8 +117,7 @@ Compared with the corresponding equation for the lasso \eqref{eq:selection}, the
 
 Furthermore, in some cases, such as the minimax concave penalty \citep[MCP; ][]{MCP} and the smoothly clipped absolute deviations \citep[SCAD; ][]{SCAD}, the form of the estimator is exactly the same.  In other words, equation~\eqref{eq:selection} holds for these penalties as well as the lasso, and therefore the form of the mFDR estimator is unchanged from \eqref{eq:mfdr} -- although again, the actual estimates $\bbh$ and any quantities based on them will be very different.
 
-non-convex penalties that produce sparse estimates like the lasso, but they have the benefit of relaxing the degree of penalization on variables with large effects. This leads to solutions with greater sparsity and less biased coefficient estimates. We note that while many penalties will lead to the same estimator asymptotically, the exact conditions required to achieve (A3) will differ. This can be seen in simulation studies presented later in the paper, which include results for both the lasso and MCP penalties.
-
+It is worth noting that MCP and SCAD differ from the the lasso by relaxing the degree of penalization on variables with large effects.  This leads to solutions with greater sparsity and reduced bias.  In particular, both theoretical analysis and simulation studies have demonstrated that estimation accuracy is typically better for MCP and SCAD than for the lasso \citep{MCP,SCAD,Breheny2011}.  Thus, as we will see later in the paper, the validity of regularity condition (A3) is typically better with finite sample sizes for these estimators than for the lasso.  As a consequence, the marginal false discovery rate is also estimated more accurately for these models.
 
 \subsection{Logistic Regression}
 
