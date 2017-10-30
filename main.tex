@@ -4,7 +4,7 @@ High-dimensional data poses a challenge to traditional likelihood-based modeling
 
 Perhaps most popular of these penalized approaches is the least absolute shrinkage and selection operator (lasso) introduced by \citet{tibshirani_1996}. The lasso imposes a penalty on the L1 norm of the estimated regression coefficients that is governed by a single parameter, $\lambda$, such that larger values of $\lambda$ result in more sparse models. In this paper we focus on the variables that are selected by a penalized regression model, in particular we examine how certain are we that these selections are not false discoveries. We do this under the general setting of likelihood-based penalized regression models, which includes GLM and Cox Proportional Hazards models under many popular penalties, including the lasso, SCAD \citep{SCAD}, MCP \citep{MCP}, and elastic net \citep{Elastic_Net}.
 
-To address this question of selection reliability, Breheny (2016) originally proposed a method to estimate marginal false discovery rates for linear lasso regression. Here we begin by outlining this approach, then we extend it to a more general class of regression models.  After doing so, we will compare our estimator's performance with other approaches that are commonly used in high dimensional variable selection.  We conclude by applying our approach to two case studies involving high-dimensional survival and high-dimensional classification data to demonstrate the estimator's practical utility.
+To address this question of selection reliability, \citet{Breheny2017} originally proposed a method to estimate marginal false discovery rates for linear lasso regression. Here we begin by outlining this approach, then we extend it to a more general class of regression models.  After doing so, we will compare our estimator's performance with other approaches that are commonly used in high dimensional variable selection.  We conclude by applying our approach to two case studies involving high-dimensional survival and high-dimensional classification data to demonstrate the estimator's practical utility.
 
 \section{Marginal False Discovery Rates}
 
@@ -142,7 +142,7 @@ L(\be)  = \prod_{k=1}^{m} \frac{\exp(\be_k)}{\sum_{r \in R_k} \exp(\be_r) }
 
 Because the partial likelihood is a convex function of $X\bb$, the KKT conditions described in Section 2.2 apply in the same way which they applied to the full likelihood in the logistic regression case. Although when estimating mFDR an additional consideration is necessary for (A2) to hold, here we also require noise variables be uncorrelated with each other with respect to their influence on the censoring mechanism. This additional requirement is needed because when a variable is related to the censoring mechanism its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce to correlations between the noise variables that would otherwise be uncorrelated. The impact of this additional concern on the $\widehat{mFDR}$ is further assessed via simulation in section 3.3. 
 
-As with penalized logistic regression, the mFDR estimator for penalized Cox regression depends on the likelihood through $\W$. In Cox regression the form of $\W$ is considerably more complicated due to the non-diagonal elements being non-zero. Motivated by the arguments in \citet{Simon_COXPH_CD} we simplify our estimate of $v_j$ by taking the off-diagonal elements of $\W$ to be zero in order to greatly improve computational efficiency. In simulations we found no difference the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
+As with penalized logistic regression, the mFDR estimator for penalized Cox regression depends on the likelihood through $\W$. In Cox regression the form of $\W$ is considerably more complicated due to the non-diagonal elements being non-zero. Motivated by the arguments in \citet{Simon2011} we simplify our estimate of $v_j$ by taking the off-diagonal elements of $\W$ to be zero in order to greatly improve computational efficiency. In simulations we found no difference the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
 
 \section{Simulations}
 
@@ -223,11 +223,11 @@ Cross validation is the most effective in selecting true variables, however it d
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[width=0.75\textwidth]{ggunivariate.pdf}
+  \includegraphics[width=0.8\textwidth]{ggunivariate2.pdf}
   \caption{The average number of selections, for each type of variable depicted in Figure~\ref{Fig:diagram}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
 \end{figure}
 
-The mFDR and univariate approaches are both designed to control the proportion of marginal false discoveries without making any claims pertaining to correlated, ``B", variables. The two methods each select causally important variables at a comparable rate, however mFDR has a distinct advantage when it comes to reducing the number of correlated selections. The mFDR approach even does as well at limiting correlated variable selections as the sample splitting and covariance approaches which are based upon fully conditional and pathwise conditional false discovery definitions respectively. 
+The mFDR and univariate approaches are both designed to control the proportion of marginal false discoveries without making any claims pertaining to correlated, ``B", variables. The two methods each select causally important variables at a comparable rate, however mFDR has a distinct advantage when it comes to reducing the number of correlated selections. The mFDR approach even does as well at limiting correlated variable selections as the sample splitting and covariance approaches which are based upon fully conditional and pathwise conditional false discovery definitions respectively, all three of these approaches make nearly zero correlated variable selections for all values of $\beta$. 
 
 \begin{table}[ht]
 \centering
@@ -245,7 +245,7 @@ The mFDR and univariate approaches are both designed to control the proportion o
 \caption{The ratio of A:C variable selections for various values of $\beta$.}
 \end{table}
 
-In practice it can be difficult to distinguish variables like ``A" from variables like ``B", but the redundant selection of both comes with the unfortunate consequence of allowing more noise variables to be selected. This can be seen with univariate testing, which selects many correlated variables and consequently also selects a greater absolute number of noise variables than the other methods. So while both the mFDR and univariate approaches use the same false discovery definition and tend to select a similar amount true variables, the univariate approach does so while often selecting many more correlated and noise variables. For the univariate approach, this allows the rate of true variable selections per noise variable selection to remain relatively low, and even decrease, as $\beta$ increases. In contrast, with the mFDR approach, the true variable to noise variable selection rate increases with $\beta$.  
+In practice it can be difficult to distinguish variables like ``A" from variables like ``B", but redundantly selecting both comes with the unfortunate consequence of allowing more noise variable selections. This can be seen with univariate testing, which selects many correlated variables and consequently also selects a greater absolute number of noise variables than the other methods. So while both the mFDR and univariate approaches use the same false discovery definition and tend to select a similar amount true variables, the univariate approach does so while often selecting many more correlated and noise variables. For the univariate approach, this allows the rate of true variable selections per noise variable selection to remain relatively low, and even decrease, as $\beta$ increases. In contrast, with the mFDR approach, the true variable to noise variable selection rate increases with $\beta$.  
 
 \section{Case Studies}
 
