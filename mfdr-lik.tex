@@ -61,6 +61,8 @@
 \providecommand{\als}[2]{\begin{align}\label{#1}\begin{split}#2\end{split}\end{align}}
 \providecommand{\inP}{\overset{p}{\longrightarrow}}
 \providecommand{\inD}{\overset{d}{\longrightarrow}}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 
 \title{Marginal false discovery rates for penalized likelihood methods}
 \author{Ryan Miller\\Department of Biostatistics\\University of Iowa

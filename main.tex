@@ -8,7 +8,7 @@ To address this question of selection reliability, Breheny (2016) originally pro
 
 \section{Marginal False Discovery Rates}
 
-Consider the causal diagram depicted in Figure~\ref{Fig:diagram}.  In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$.  Variable $B$ is correlated with variable $Y$, but is not causally related.  Its correlation arises only through its relationship with variable $A$, and if we adjust for variable $A$ there will no longer be any correlation between variable $B$ and the response.  Variable $C$ is clearly uncorrelated with variable $Y$ regardless of which variables our model might adjust for.
+False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery is a significant result that is actually independent of the outcome. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery becomes complicated. A standard approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features, ie: $X_j \independent Y | X_{k \neq j}$. Many penalized likelihood methods result in only a subset of the available variables being active in the model, thereby making fully conditional inference difficult. This motivates the \textit{pathwise conditional} perspective, which considers the model where variable $j$ first becomes active and conditions only on the other variables present in the model at that time when assessing whether or not variable $j$ is a false discovery.
 
 \begin{figure}[!htb]
 \centering
@@ -29,11 +29,9 @@ Consider the causal diagram depicted in Figure~\ref{Fig:diagram}.  In this diagr
 \caption{\label{Fig:diagram} Causal diagram showing three types of relationships between variables and the outcome.}
 \end{figure}
 
-In this paper variables like variable C, which we will often be refer to as noise variables, are considered to be \textit{marginal false discoveries} if they are selected, while variables like A or B are both considered to be valid selections. We aim to control the marginal false discovery rate (mFDR), which is the proportion of selections that are noise variables.
+In this paper we adopt a weaker \textit{marginal false discovery} definition which we motivate using the causal diagram depicted in Figure~\ref{Fig:diagram}. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
 
-While this definition is not as strict as that of most traditional regression approaches, which consider non-causal variables like B to be false discoveries, it is the same definition used by large scale univariate testing approaches.  Some existing approaches to false discovery rate control in penalized regression, such as those of \citet{CovTest} and \citet{Selective_Inference}, use an exact test that is conditional upon lasso path and thereby employ a slightly stricter definition where variables like B are false discoveries only if A belongs to the active set.  Other approaches, such as the sample splitting \citep{Sample_Splitting}, which uses two stage approach where in the first stage half the data to select variables using lasso and in the second stage the remaining half of data is used to conduct inference using ordinary regression on the variables selected during the first stage, also employ a stricter definition where variables like B are false discoveries only if A advances into the second stage.
-
-Despite these differences, mFDR is a useful measure to express the reliability of a selected set of variables and have the advantage of providing a clear criteria for determining false discoveries in way that does not depend on the other variables in the model, which is particularly important in penalized regression where the active set of variables in the model changes in relation to the penalty.
+Variable $B$ is is correlated with variable $Y$, but after adjusting for $A$ it is independent of $Y$. Depending upon the perspective taken, $B$ might or might not be considered a false discovery. In a fully conditional approach $B$ should always considered a false discovery, however in a pathwise approach this depends upon whether $A$ is active in the model. Further complicating things is the identifiability problem inherent in distinguishing whether $A$ or $B$ is the variable driving changes in $Y$. Our approach avoids these complications by only considering variables like $C$ to be marginal false discoveries, a definition consistent with univariate testing. Regardless of the perspective taken on variables like $B$, it remains that identifying marginal false discoveries provides a useful way of assessing how many variables in a model are purely noise.   
 
 \subsection{Penalized Likelihood Optimization}
 
@@ -65,7 +63,7 @@ In this section, we use classical distributional properties of the score functio
 The basic intuition behind the derivation is that, given certain regularity conditions, if feature $j$ is a marginally independent of $\y$, then $Pr(\bh_j \neq 0)$ is approximately equal to $Pr(\tfrac{1}{n}\abs{u_j(\bb)} > \lam)$, where the classical score statistic $\u$ is evaluated at the true value of $\bb$ provided that the log-likelihood is correctly specified (i.e., that the model assumptions hold).
 Given this result, the asymptotic normality of the score allows us to estimate this tail probability, and with it, the expected number of marginal false discoveries at a given value of $\lam$.
 
-Three regularity conditions are required for these theoretical results to hold.  These are given below, where we let $\W = \nabla^2f$ denote the $n \times n$ matrix of second derivatives of the loss function with respect to $\be$, such that the classical Hessian matrix $\nabla^2 \ell (\bb) = -\X^T\W\X$.  We use $\W$ to denote this matrix evaluated at the true value of $\bb$ and $\hat{\W}$ if evaluated at the lasso estimate.  In addition, we let $v_j=\frac{1}{n}\x_j^T\W\x_j$, with $\hat{v}_j$ defined similarly.
+Three regularity conditions are required for these theoretical results to hold.  These are given below, where we let $\W = \nabla^2f$ denote the $n \times n$ matrix of second derivatives of the loss function with respect to $\be$, such that the classical Hessian matrix $\nabla^2 \ell (\bb) = -\X^T\W\X$.  We use $\W$ to denote this matrix evaluated at the true value of $\bb$ and $\hat{\W}$ if evaluated at the lasso estimate.  In addition, we let $v_j=\x_j^T\W\x_j$, with $\hat{v}_j$ defined similarly.
 
 \begin{itemize}
 \item (A1) Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
@@ -79,10 +77,12 @@ In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:dia
 \begin{theorem}
   \label{Thm:main}
   For any solution $\bbh$ of the lasso-penalized objective \eqref{eq:obj}, we have $\bh_j \neq 0$ if and only if
-  \as{\abs{\tfrac{1}{n}u_j(\bbh) + v_j\bh_j} > \lam.}
+  \as{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam.}
   Furthermore, provided that that (A1)-(A3) are satisfied and $\beta_j=0$,
-  \as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
+  \as{\frac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
+	%\as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 \end{theorem}
+
 
 \begin{proof}
   The first remark follows directly from the KKT conditions and the fact that, if the loss function is strictly convex, then $\W$ is positive definite and $v_j$ is positive.  The asymptotic normality of the score function (A1) implies that the following Taylor series expansion holds:
@@ -90,15 +90,16 @@ In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:dia
 Since $\beta_j=0$, we then have
 \as{u_j(\bbh) &= u_j(\bb) - \x_j^T\W\X_{-j}(\bbh_{-j} - \bb_{-j}) - \x_j^T\W\x_j\bh_j + o_p(n)\bh_j,\\
 \intertext{or}
-\tfrac{1}{\sqrt{n}}u_j(\bbh) + \sqrt{n}v_j\bh_j &= \tfrac{1}{\sqrt{n}}u_j(\bb) - [\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{n}\bh_j.}
-Dividing both sides by $\sqrt{v_j}$, the first term converges to $N(0,1)$ by (A1), the second term goes to zero by conditions (A2) and (A3), and the third term also goes to zero by (A3).
+\tfrac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}}  &= \tfrac{u_j(\bb)}{\sqrt{v_j}} - \sqrt{\tfrac{n}{v_j}}[\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{\tfrac{n}{v_j}}\sqrt{n}\bh_j.}
+%\tfrac{1}{\sqrt{n}}u_j(\bbh) + \sqrt{n}v_j\bh_j &= \tfrac{1}{\sqrt{n}}u_j(\bb) - [\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{n}\bh_j.}
+The first term converges to $N(0,1)$ by (A1), the second term goes to zero by conditions (A2) and (A3), and the third term also goes to zero by (A3).
 \end{proof}
 
-Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ is selected, given that it is marginally independent of the outcome, is approximately the probability that a random variable following a $N(0, v_j/n)$ distribution exceeds $\lam$ in absolute value.
+Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ is selected, given that it is marginally independent of the outcome, is approximately the probability that a random variable following a $N(0, v_j/n^2)$ distribution exceeds $\lam$ in absolute value.
 In principle, the expected number of marginal false selections could be obtained by summing this probability over the set of marginally independent noise variables; in practice, since the identity of this set is unknown, a conservative alternative is to sum over all $p$ variables.
 This gives the following estimators for the number and rate of marginal false discoveries:
 \al{eq:mfdr}{
-  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(-\lam\sqrt{n/\hat{v}_j}\right)\\
+  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)\\
   \widehat{mFDR} &= \frac{\widehat{FD}}{|S|},
 }
 where $S$ is the set of selected variables and $|S|$ its size.
@@ -194,45 +195,29 @@ Thus we have arrived at (1).  Assumption A1 leads directly to the distributional
 
 \end{proof}
   
-\subsection{The mFDR Estimator for Other Penalties}
+\subsection{Other Penalty Functions}
 
-Because our estimator is derived directly from the KKT conditions, which tend to be similar for many commonly used penalties, it is straightforward to extend to other penalties and often results in an identical estimator.
-
-As a demonstration we consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters $\lambda_1, \lambda_2$. In the general setting, the elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. In order for $\hat{\beta_j} \neq = 0$, the KKT conditions of the elastic net \citep{lasso_kkt} require:
+The KKT conditions are necessitated by the use of a non-differentiable penalty function. While the lasso penalty is one example of this, many other non-differentiable penalties exist and often have KKT conditions very similar to those of the lasso. This similarity allows the mFDR estimator to be easily adapted to these penalty functions. As an example we consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters $\lambda_1, \lambda_2$. The elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. The KKT conditions of elastic net dictate that for $\hat{\beta_j} \neq 0$:
 
 \begin{equation*}
-\frac{1}{n}\x_{j}^T \s(\beh) = \lambda_1 sign(\hat{\beta}_j) + \lambda_2 \hat{\beta}_j
+\frac{1}{n}\x_{j}^T u_j(\bbh) = \lambda_1 sign(\hat{\beta}_j) + \lambda_2 \hat{\beta}_j
 \end{equation*}
 
-Since only the right hand side of the condition has changed, we can follow the previous derivation to arrive at the inequality:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T  u(\be) + \x_j^T u'(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  > \lambda_1  + \lambda_2|\hat{\beta}_j|
-\end{equation*}
-
-Because $\lambda_1  + \lambda_2|\hat{\beta}_j| \geq \lambda_1$ the same inequality that we derived for the lasso penalty will also apply to elastic net, thereby allowing for an identical estimator to be used.
-
-Other notable penalties resulting in same estimator are the minimax concave penalty (MCP) introduced by \citet{MCP} and the smoothly clipped absolute deviations (SCAD) penalty introduced by \citet{SCAD}.  Both MCP and SCAD are non-convex penalties that produce sparse estimates like the lasso, but have the benefit of relaxing their penalization on variables with large effects.  This leads to solutions with greater sparsity and less biased coefficient estimates.
-
-Although many penalties lead to the same estimator asymptotically, the exact conditions required for assumption A3 will differ. This is seen in the simulation studies presented later in the paper, which include results for both lasso and MCP penalties.
+Compared with the lasso, only the right hand side of the selection condition has changed. Because $\lambda_1 + \lambda_2|\hat{\beta}_j| \geq \lambda_1$ the same inequality that we derived to express feature selection by the lasso also applies to the elastic net, allowing for an identical mFDR estimator to be used. Other notable penalties which result in the same estimator are the minimax concave penalty (MCP) introduced by \citet{MCP} and the smoothly clipped absolute deviations (SCAD) penalty introduced by \citet{SCAD}. Both MCP and SCAD are non-convex penalties that produce sparse estimates like the lasso, but they have the benefit of relaxing the degree of penalization on variables with large effects. This leads to solutions with greater sparsity and less biased coefficient estimates. We note that while many penalties will lead to the same estimator asymptotically, the exact conditions required to achieve (A3) will differ. This can be seen in simulation studies presented later in the paper, which include results for both the lasso and MCP penalties.
 
 \subsection{Logistic Regression}
 
-Thus far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression.  
+So far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$, which results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \frac{\exp(\eta_i)} {1 + \exp(\eta_i)}$.
 
-Here $y_i$ follows a  Bernoulli distribution with success probability $\pi_i$.  The logit of $\pi_i$ is modeled as a linear function of $X$, resulting in a likelihood is the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \frac{\exp(\eta_i)} {1 + \exp(\eta_i)}$.
+%\begin{equation*}
+%L(\be) = \prod_{i=1}^{n} \pi_i^{y_i} (1 - \pi_i)^{1 - y_i}
+%\end{equation*}
 
-\begin{equation*}
-L(\be) = \prod_{i=1}^{n} \pi_i^{y_i} (1 - \pi_i)^{1 - y_i}
-\end{equation*}
-
-The mFDR estimator depends upon the likelihood in two ways.  First it requires that the log-likelihood is a convex function of $X\bb$, which clearly applies to logistic regression.  
-
-Second, the estimator depends upon $E[l''(\be)]$.  For logistic regression $E[l''(\be)]$ is a diagonal matrix where $i^{th}$ diagonal element is given by $\pi_i(1 - \pi_i)$.  We use a simple estimator, $W$, as a diagonal matrix with entries $W_{i,i} = \hat{\pi}_i(1 - \hat{\pi}_i)$ where $\hat{\pi}_i = \frac{\exp(\x_i^T\hat{\bb})} {1 +\exp(\x_i^T\hat{\bb})}$
+Provided the log-likelihood is a convex function of $X\bb$, which clearly applies to logistic regression, the mFDR estimator depends on the likelihood via the structure of $\W$, which is needed to calculate $\hat{v}_j$. For logistic regression $\W$ is a diagonal matrix with the $i^{th}$ diagonal element given by $\pi_i(1 - \pi_i)$. We estimate $\hat{\pi}_i = \frac{\exp(\x_i^T\hat{\bb})} {1 +\exp(\x_i^T\hat{\bb})}$ which by (A3) leads to a consistent estimator of $v_j$.
 
 \subsection{Cox Regression}
 
-Another setting where mFDR is useful is penalized Cox regression. Here the response variable is a time-to-event outcome consisting of two components, a time, $y_i$, that is accompanied by an indicator variable, $d_i$, which takes on a value of 1 if $y_i$ is an observed event time and a value of 0 if $y_i$ is a right censoring time.  
+Another setting where mFDR can be used is penalized Cox regression. Here the outcome of interest contains two components, a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.  
 
 Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $k$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the Cox partial likelihood \citep{Cox1972}:
 
@@ -241,71 +226,112 @@ L(\be)  = \prod_{k=1}^{m} \frac{\exp(\be_k)}{\sum_{r \in R_k} \exp(\be_r) }
 % \prod_{k=1}^{m} \frac{\exp(\x_k^T\bb)}{\sum_{r \in R_k} \exp(\x_r^T\bb) } 
 \end{equation*}
 
-Because the partial likelihood is a convex function of $X\bb$, the KKT conditions described in Section 2.2 apply in the same way which they applied to the full likelihood in the logistic regression case. However, despite having identical KKT conditions, the derivation of the MFDR estimator require an additional assumption in order for assumption A3 to hold in the Cox regression setting.  Here it is necessary for noise variables to be uncorrelated with each other with respect to their influence on the censoring mechanism. This is assumption necessary because when a variable is related to the censoring mechanism its distribution will drift over time as certain values are disproportionately removed from the risk set. This can induce to correlations between the false variables that would otherwise be uncorrelated, which lead to a violation A3. The additional concern in Cox regression is censoring, the impact of censoring on the $\widehat{mFDR}$ is assessed via simulation and discussed in section 3.3. 
+Because the partial likelihood is a convex function of $X\bb$, the KKT conditions described in Section 2.2 apply in the same way which they applied to the full likelihood in the logistic regression case. Although when estimating mFDR an additional consideration is necessary for (A2) to hold, here we also require noise variables be uncorrelated with each other with respect to their influence on the censoring mechanism. This additional requirement is needed because when a variable is related to the censoring mechanism its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce to correlations between the noise variables that would otherwise be uncorrelated. The impact of this additional concern on the $\widehat{mFDR}$ is further assessed via simulation in section 3.3. 
 
-Similar to logistic regression setting, the mFDR estimator for the Cox regression setting depends on the likelihood through $E[l''(\be)]$.  In Cox regression form of this matrix is considerably more complicated, however we again use the simple estimator of $W =  l''(\beh)$.
+As with penalized logistic regression, the mFDR estimator for penalized Cox regression depends on the likelihood through $\W$. In Cox regression the form of $\W$ is considerably more complicated due to the non-diagonal elements being non-zero. Motivated by the arguments in \citet{Simon_COXPH_CD} we simplify our estimate of $v_j$ by taking the off-diagonal elements of $\W$ to be zero in order to greatly improve computational efficiency. In simulations we found no difference the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
 
 \section{Simulations}
 
-In this section we study several properties of the mFDR estimator via simulation. In each study $j \in \{1, \ldots, p\}$ covariates are generated from standard normal distributions for$i = 1, \ldots, n$ subjects. 
+In this section we study the behavior of the mFDR estimator via several simulation studies. In each study we generate $j \in \{1, \ldots, p\}$ variables from standard normal distributions for $i = 1, \ldots, n$ subjects. We consider three different penalized likelihood models, logistic regression, Cox regression, and linear regression.
 
-For logistic regression scenarios, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \frac{\exp(\x_i^T \bb)} {1 + \exp(\x_i^T \bb)}$. In Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$. And in linear regression scenarios the outcome is drawn from the model $y_i = \x_i\bb + N(0,\sigma^2)$.
+For logistic regression scenarios, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \frac{\exp(\x_i^T \bb)} {1 + \exp(\x_i^T \bb)}$. For Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$. And for linear regression scenarios outcomes are generated from the model $y_i = \x_i\bb + N(0,\sigma^2)$. Factors including $p$, $n$, and $\bb$, the correlation between variables, and censoring are varied throughout these simulations.
 
-Details regarding $p$, $n$, and $\bb$, the correlation between variables, and censoring are described individually for each simulation.
+\subsection{Inaccuracy, Sample Size, and Correlation}
 
-\subsection{Inaccuracy, sample size, and correlated variables}
+Potential inaccuracy of $\widehat{mFDR}$ arises from two places, first by using the asymptotic distribution of the score function, and second in the convergence of the remainder term to zero. Consequently we study at the effect of two factors, sample size, which will impact both of sources of inaccuracy, and correlation between noise variables, which impacts the remainder term, on accuracy. We evaluate accuracy by comparing $\widehat{mFDR}$ with the observed proportion of noise variables at each value of a fixed $\lambda$ sequence averaged across 1,000 simulation iterations.
 
-Inaccuracy of $\widehat{mFDR}$ arises from two places, first from the normal approximation of the score function, and second from the convergence of the term, $\frac{1}{n}\x_j^T W X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})$, to zero. In this simulation we assess accuracy by looking at the effect of two factors, sample size and correlation between noise variables, on the how close $\widehat{mFDR}$ is to the nominal rate. This is done by varying the sample size and the correlation structure of the noise variable and comparing the estimated mFDR to the true proportion of false variables at each value of a fixed $\lambda$ sequence averaged across 1,000 simulation iterations.
+We generate our data using $p = 40$ with $\beta_{1:4} = \frac{10}{\sqrt{n}}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 in increments of 100. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early in the $\lambda$ sequence and false selections are extremely rare until the very end of $\lambda$ sequence where they occur rapidly, leading to the observed proportion of false selections at a given $\lambda$ being very unstable.
 
-We generate data with $p = 40$ with $\beta_{1:4} = \frac{10}{\sqrt{n}}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 by increments of 100.  We chose $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early in the $\lambda$ sequence and false selections are extremely rare until the very end of $\lambda$ sequence where they occur rapidly.
-
-Separate simulations were conducted to assess twelve different scenarios consisting of each possible combination of two different correlation structures: independent noise variables and correlated noise variables, as well as three different regression methods: linear regression, logistic regression, and Cox regression, and two different penalties: lasso and MCP. In the correlated setting false variables are given an autoregressive correlation structure based upon their index such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the average estimated mFDR of each method at the $\lambda$ value where the average empirical mFDR is 10\%.
+In total we assess twelve different scenarios consisting of each possible combination of:
+\begin{itemize}
+\item Two different correlation structures: independent noise variables and correlated noise variables
+\item Three different regression methods: linear regression, logistic regression, and Cox regression
+\item Two different penalties: lasso and MCP. 
+\end{itemize}
+For our correlated setting noise variables are given an autoregressive correlation structure based upon their index such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the average estimated mFDR at the $\lambda$ value where the average observed proportion of noise variables is 10\%.
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[scale = .75]{conv_gg.pdf}
-  \caption{Inaccuracy of the mFDR estimator }
+  \includegraphics[width=.9\textwidth]{ggconverge3.pdf}
+  \caption{Inaccuracy of the mFDR estimator}
 \end{figure}
 
-We can see that the MFDR estimator tends to be conservative with its conservatism decreasing as $n$ increases.  In the case of independent false variables the estimator approaches the nominal marginal false discovery rate as $n$ increases.  This convergence occurs nearly instantaneously linear regression, with the estimator being very accurate even at $n=100$, it occurs more slowly for logistic and Cox regression with the estimator being very slightly conservative even when $n > 500$.
+The mFDR estimator tends to be conservative with the degree of conservatism decreasing as $n$ increases. In the case of independent noise variables the estimator approaches the nominal marginal false discovery rate as $n$ increases. The convergence occurs nearly instantaneously linear regression, with the estimator being very accurate even at $n=100$, and more slowly for logistic and Cox regression with the estimator remaining very slightly conservative even when $n > 500$. The MCP penalty leads to faster convergence and better accuracy than the lasso penalty, this is particularly noticeable in the logistic and Cox regression settings. The improvement is likely due to the MCP's tendency towards less biased coefficient estimates which results in more accurate estimates of $v_j$ and also faster convergence of the remainder term.
 
-Correlation between noise variables induces a conservative bias that is not remedied by increases in sample size.  This issue is not unique to mFDR as many methods for controlling false discovery rates are conservative in correlated settings.  Even with its conservative nature, mFDR remains a useful tool in guarding against false discoveries.  
+The correlated setting induces a noticeable conservative bias that is cannot be resolved by increasing the sample size. This issue is not unique to mFDR as many methods for controlling false discovery rates also tend to be conservative in correlated settings. Even with its conservative nature, mFDR can still be useful tool in assessing the reliability of selections made by a penalized regression model by providing an upper bound on the proportion of false selections in cases of moderate correlation.
 
-Finally, we observe that the MCP penalty tends to have slightly better accuracy than the lasso penalty, particularly in the logistic and Cox regression settings.  This is likely due to the MCP's tendency towards less biased coefficient estimates which allows for assumption A3 to be more easily achieved.
+\subsection{Inaccuracy and Censoring}
 
-\subsection{Inaccuracy and censoring}
-
-Cox regression poses additional accuracy concerns because of censoring. In Cox Regression the individual covariate distributions may change over time depending upon each variable's relationship to censoring mechanism.  If a variable is related to censoring its distribution will drift over time as certain values are disproportionately removed from the risk set. This has the potential to induce to correlations between noise variables, in violation of assumption A2.
-
-In this simulation study we assess the influence of variables being associated with the censoring mechanism on the accuracy of the mFDR estimator in two scenarios.  In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$. In scenario A, $\bg_A = (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0) $; while in scenario B, $\bg_B = (0, \ldots, 0) )$.  By design, each of these scenarios results in approximately 50\% of the observations being censored.  The same set of $n = 100$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
+An additional concern arises in the Cox regression setting due to censoring.  We assess the influence of variable associations with the censoring mechanism by comparing two scenarios. In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$, and in scenario A four noise variables are related to censoring via $\bg_A = (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0) $; while in scenario B all variables are independent of censoring with $\bg_B = (0, \ldots, 0))$. By design, each of these scenarios, on average, results in 50\% of the observations being censored.  The same set of $n = 100$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
 \begin{table}[!htb]
  \caption{Average true mFDR (10,000 simulations) when the estimated mFDR is 10\%}
 \centering
-\begin{tabular}{c c c}
+\begin{tabular}{c | c c}
   \hline
- & lasso & MCP   \\  [0.5ex]
-  \hline \hline 
-  Scenario A & 1.02\% & 6.72\% \\ 
-  Scenario B &  1.33\% & 7.31\% \\ 
+ Scenario & lasso & MCP   \\  [0.5ex]
+  \hline 
+   A & 1.02\% & 6.72\% \\ 
+   B &  1.33\% & 7.31\% \\ 
    \hline
 \end{tabular}
 \end{table}
 
-We see that correlation induced between noise variables in scenario A leads to a more conservative mFDR estimator.  However, despite the very strong relationship noise variables had with censoring the impact on mFDR is relatively small.
+The correlation induced between noise variables induced by their relationship with censoring in scenario A leads to a slightly more conservative mFDR estimator. The degree of conservatism is minor in comparison to the effects of sample size and correlation between noise variables with respect to the outcome.
 
-\subsection{Comparison with other methods}
+\subsection{Comparison with Other Methods}
 
-In this simulation study we assess the rate at which true variables are selected when attempting to control the marginal false discovery rate at 10\%. We compare the true selection rate in both low($p = 100$) and high($p=1000$) dimensional settings for a variety of effect sizes. In both settings $n = 400$, with ten variables are truly related to the outcome with $\beta_{1:10} = b$ where $b$ is varied throughout the study.  
+In this simulation study we assess different methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in Figure~\ref{Fig:diagram}, we use $n = 400$ and $p = 1000$ with ten variables are causally related to the outcome, like ``A", such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each causal variable we generate nine correlated ($\rho = 0.5$) variables, akin to ``B". The remaining 900 variables are noise, akin to ``C", however they are correlated with each other such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR estimator will be conservative.
 
-We assess the following methods: The first is our proposed method, which uses estimated mFDR to select $\lambda$.  The second is an approach based upon sample splitting \citep{Sample_Splitting} where we first fit a lasso regression model using half of the data to select the top 20 variables, then we use the remaining data to fit a unpenalized regression model on the selected variables.  Using the unpenalized model we can conduct traditional hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate. We use our first step to select 20 variables to ensure the second stage model contains 10 events per variable, which is essential for the hypothesis tests done on the model coefficients to have the proper type I error \citep{peduzzi_epv}. The third is the covariance testing approach of \citet{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the false discovery rate. The final approach uses 10-fold cross validation to select the $\lambda$ value which minimizes deviance.
+We assess the average number of selections for each variable type (``A", ``B", ``C") after applying each of the following methods:
+\begin{itemize}
+\item Our mFDR approach, where variables are selected by the lasso using the smallest $\lambda$ with $\widehat{mFDR} \leq .1$.  
+\item A sample splitting approach, motivated by \citet{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit a unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. We mandate that only 20 variables are selected in the first stage so that the second stage model contains 10 events per variable \citep{peduzzi_epv}.
+\item The covariance testing approach \citep{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the pathwise false discovery rate at $10\%$. 
+\item A large scale univariate testing approach which fits an unpenalized regression model to each variable individually, conducts a hypothesis test on the variable coefficient, and then adjusts the resulting p-values using the Benjamini-Hochberg procedure to control the false discovery rate at $10\%$.
+\item A lasso approach which uses 10-fold cross validation to select the $\lambda$ and makes no attempt to control the false discovery rate.
+\end{itemize}
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[scale = .5]{power.pdf}
-  \caption{The average proportion of true variables selected across 1,000 simulation iterations by each method is plotted as a function of $\beta$ }
+  \includegraphics[width=0.75\textwidth]{ggpower.pdf}
+  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$.}
 \end{figure}
 
-In both the low-dimensional and high-dimensional settings the mFDR approach is able to select a greater proportion of the truly non-zero variables for every value of $b$ when compared to the covariance testing and the sample splitting approaches. Cross validation is able to select an even higher proportion of true variables, however it does not control the false discovery of its selections. While the other approaches all had empirical false discovery rates well under 10\% throughout our simulations, we observed cross validation to have empirical false discovery rates as high as 80\% in some scenarios.  We make the caveat that the covariance testing procedure for logistic regression is currently considered by its creators to be experimental.  Additionally, the procedure has not yet been implemented for Cox regression.
+Compared to the other false discovery rate control methods which use penalized regression, the mFDR approach selects more causally important variables at every value of $b$. This result comes with the caveat that despite being available in the ``CovTest" package, the covariance test for logistic regression is currently considered to be experimental by the package creators. The test has not yet been implemented in the package for Cox regression. 
+
+\begin{figure} [!htb]
+ \centering
+  \includegraphics[width=0.75\textwidth]{ggcv.pdf}
+  \caption{The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram} is plotted for cross validation as function of $\beta$ }
+\end{figure}
+
+Cross validation is the most effective in selecting true variables, however it does not control number of false selections. In fact it selects more and more noise variables as the $\beta$ increases. While all of the other approaches resulted in false discovery rates well under 10\% throughout our simulations, as many as $80\%$ of the selections made by cross validation were noise variables for larger values of $\beta$. This is particularly troublesome since these additional noise variable selections offer no advantage when it comes to selecting true variables in this scenario, thus highlighting a major difference between using the lasso for prediction and using the lasso for variable selection.
+
+\begin{figure} [!htb]
+ \centering
+  \includegraphics[width=0.75\textwidth]{ggunivariate.pdf}
+  \caption{The average number of selections, for each type of variable depicted in Figure~\ref{Fig:diagram}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
+\end{figure}
+
+The mFDR and univariate approaches are both designed to control the proportion of marginal false discoveries without making any claims pertaining to correlated, ``B", variables. The two methods each select causally important variables at a comparable rate, however mFDR has a distinct advantage when it comes to reducing the number of correlated selections. The mFDR approach even does as well at limiting correlated variable selections as the sample splitting and covariance approaches which are based upon fully conditional and pathwise conditional false discovery definitions respectively. 
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{c | r r r r}
+  \hline
+ $\beta$ & univariate (Cox) & mFDR (Cox) & univariate (Logistic) & mFDR (Logistic) \\ 
+  \hline
+  0.25 & 3.50 & 17.68 & 2.31 & 3.26 \\ 
+  0.35 & 3.01 & 36.20 & 4.94 & 11.10 \\ 
+  0.45 & 2.89 & 102.21 & 5.31 & 15.34 \\ 
+  0.65 & 2.38 & 333.33 & 4.59 & 32.59 \\ 
+  0.75 & 1.89 & 750.00 & 4.15 & 47.56 \\ 
+   \hline
+\end{tabular}
+\caption{The ratio of A:C variable selections for various values of $\beta$.}
+\end{table}
+
+In practice it can be difficult to distinguish variables like ``A" from variables like ``B", but the redundant selection of both comes with the unfortunate consequence of allowing more noise variables to be selected. This can be seen with univariate testing, which selects many correlated variables and consequently also selects a greater absolute number of noise variables than the other methods. So while both the mFDR and univariate approaches use the same false discovery definition and tend to select a similar amount true variables, the univariate approach does so while often selecting many more correlated and noise variables. For the univariate approach, this allows the rate of true variable selections per noise variable selection to remain relatively low, and even decrease, as $\beta$ increases. In contrast, with the mFDR approach, the true variable to noise variable selection rate increases with $\beta$.  
 
 \section{Case Studies}
 
@@ -322,14 +348,14 @@ In our analysis we aim to select of important genetic features while controlling
 
 In Figure~\ref{Fig:Shedden} we see a discrepancy between the total number of selections and the expected number of false selections for many values of $\lambda$, this indicates that some of the genetic features in the dataset are likely to be truly related to survival. 
 
-Using a target 10\% mFDR leads to a choice of $\lambda$ that selects, 9 genetic features when using the lasso penalty. Using cross validation results in the selection of a much smaller $\lambda$ that corresponds to the selection of 28 genetic features however the estimated mFDR at this choice of $\lambda$ is 100\% indicating that we likely have not controlled the number of false selections. Using the MCP penalty, the targeted 10\% mFDR threshold results in the selection of only 2 genetic features and cross validation selects 26 genetic features.  This is reflective of the tendency of the MCP penalty to lead to more parsimonious models.
+Using a target 10\% mFDR leads to a choice of $\lambda$ that selects, 9 genetic features when using the lasso penalty. Using cross validation results in the selection of a much smaller $\lambda$ which corresponds to the selection of 28 genetic features however the estimated mFDR at this choice of $\lambda$ is 100\% indicating that many of these selections are likely to be noise variables. Using the MCP penalty, the targeted 10\% mFDR threshold results in the selection of only 2 genetic features and cross validation selects 26 genetic features. This is reflective of the tendency of the MCP penalty to lead to more parsimonious models.
 
-When analyzing the data using the approach proposed by \citet{Meinshausen2009}, which repeatedly performs sample splitting using a large number random splits, we are unable to select any genetic features. Additionally the current version of the covTest package, which is used to carry out the covariance testing approach, currently does not accommodate survival data.
+For comparison we analyze the data using the approach proposed by \citet{Meinshausen2009}, which repeatedly performs sample splitting using a large number random splits. Using this approach we are unable to select any genetic features. Additionally the current version of the covTest package, which is used to carry out the covariance testing approach, currently does not accommodate survival data.
 
-Another popular method used for gene selection is to univariately test each genetic feature and adjust the test results to control the false discovery rate.  For comparison purposes we applied this approach to the Shedden data in two ways.  The first fits a univariate Cox regression model to each genetic feature and tests the features effect on survival.  The second is similar except with each model adjusting for clinical covariates in addition to the single genetic feature.  Using the Benjamini-Hochberg procedure to control the false discovery rate at 10\%, these two univariate testing approaches result in the selection of 862 and 803 features respectively.  These results are illustrative of the difference between model based approaches and large scale univariate testing.  Univariate approaches tends select many features from a few groups that are correlated with each other, adding a degree of redundancy to the results.  Modeling approaches tend to instead select a single representative from each group of correlated features.  
+As another comparison we apply a large scale univariate testing approach to the Shedden data in two ways. The first fits a univariate Cox regression model to each genetic feature and tests the features effect on survival.  The second is similar except with each model adjusting for clinical covariates in addition to the single genetic feature.  After using the Benjamini-Hochberg procedure to control the false discovery rate at 10\%, these two univariate testing approaches result in the selection of 862 and 803 features respectively. This is illustrative of the difference between model based approaches and large scale univariate testing. Univariate approaches tends select many features from correlated groups, adding a degree of redundancy to the results. Whereas modeling approaches instead tend to select a single representative from each group of correlated features.  
 
 \subsection{Lung Cancer Status Among Smokers}
-\citet{Spira2007} collected RNA expression data from histologically normal bronchial epitheliums of $n = 192$ smokers of which 102 had developed lung cancer and 90 had not developed lung cancer.  We are interested identifying genetic features that are indicative of whether or not a smoker has lung cancer.  For our analysis we a penalized fit logistic regression model using both the lasso and MCP penalties. We compare the results at $\lambda$ values chosen using estimated MFDR, cross validation, and the covariance test.  We also compare these model based approaches to the traditional univariate approach with false discovery rate control.
+\citet{Spira2007} collected RNA expression data from histologically normal bronchial epitheliums of $n = 192$ smokers of which 102 had developed lung cancer and 90 had not developed lung cancer.  We are interested identifying genetic features that are indicative of whether or not a smoker has lung cancer.  For our analysis we a penalized fit logistic regression model using both the lasso and MCP penalties. We compare the results at $\lambda$ values chosen using estimated mFDR, cross validation, and the covariance test as well as the selections made by sample splitting. We also compare these model based approaches to the traditional univariate approach with false discovery rate control.
 
 \begin{table}[ht]
 \centering
@@ -359,17 +385,15 @@ $\lambda$ & EF & S & mFDR & EF & S & mFDR \\
  \caption{The estimated mFDR results for 15 values of the $\lambda$ sequence which straddle our target mFDR}
 \end{table}
 
-Using the lasso penalty and a target MFDR threshold of 10\% we select a $\lambda$ value of 0.146 corresponding to the selection of 10 features.  Cross Validation selects a $\lambda$ of 0.056 corresponding to the selection of 40 features.  The estimated FIR at the $\lambda$ chosen by cross validation is 100\%, indicating that we cannot be confident that the number of false selections has been controlled.  If instead we use the MCP penalty we select a $\lambda$ value of 0.1508, corresponding to 5 features, when targeting 10\% FIR; and using cross validation we select a $\lambda$ value of 0.0666, corresponding to 14 features.  Again the estimated MFDR at the $\lambda$ chosen by cross validation is 100\%.  
+Using the lasso penalty and a target mFDR threshold of 10\% we choose $\lambda = 0.146$, corresponding to the selection of 10 features.  Cross Validation selects a $\lambda$ of 0.056 corresponding to the selection of 40 features. However the estimated mFDR at the $\lambda$ chosen by cross validation is 100\%, indicating that many of these selections are likely to be noise variables. If instead we use the MCP penalty we select a $\lambda$ value of 0.1508, corresponding to 5 features, when targeting 10\% mFDR; and using cross validation we select a $\lambda$ value of 0.0666, corresponding to 14 features. Once again the estimated mFDR at the $\lambda$ chosen by cross validation is 100\%.  
 
-The sample splitting approach, using 100 random splits, does not select any features after controlling the false discovery rate. Only a single genetic feature reached the second stage in at at least half of the splits and its median p-value was not significant. 
+The sample splitting approach, using 100 random splits, does not select any features after controlling the false discovery rate. Only a single genetic feature reached the second stage in at at least half of the splits but its median p-value was not significant. Similarly the covariance testing approach also does not select any features.  The first variable to enter the model has a p-value of 0.475 and when the ForwardStop procedure is applied we are unable to move beyond the intercept only model without the false discovery rate exceeding 10\%.
 
-The Covariance Testing approach also does not select any features.  The first variable to enter the model has a p-value of 0.475 and when the ForwardStop procedure is applied we cannot proceed past the intercept only model if without the false discovery rate exceeding 10\%.
-
-Finally we applied the univariate testing approach to these data in two ways.  The first uses t-tests to assess the difference in expression for each genetic feature for the two groups while controlling the false discovery rate at 10\% using the Benjamini$-$Hochberg procedure.  This procedure ends up selecting selecting 2,965 genetic features. An alternative approach is to use univariate logistic regression instead of t-tests in the aforementioned procedure, which leads to selection of 2,833 genetic features.  This is illustrates the tendency of model based approaches to select only a single feature from a correlated group, while univariate approaches select all of the features within correlated groups. 
+As a final comparison, we applied the univariate testing approach to these data in two ways. The first uses t-tests to assess the difference in expression for each genetic feature for the two groups while controlling the false discovery rate at 10\% using the Benjamini$-$Hochberg procedure.  This procedure ends up selecting selecting 2,965 genetic features. The second approach uses univariate logistic regression instead of t-tests, which leads to selection of 2,833 genetic features. The large number of feature selections by both of these univariate approaches again illustrates why a model based approach, which will tend to select a single feature from each correlated group of variables, might be preferable. 
 
 \section{Discussion}
-Quantifying the reliability of feature selections when using penalized regression models is valuable when analyzing high dimensional data and using the false inclusion rate estimator proposed in this paper is one way of accomplishing this.  Unlike other approaches that have a similar goal, such as sample splitting or the covariance test, mFDR uses a more relaxed definition of a false discovery which does not limit variables with $\beta_j = 0$ but rather only limits variables that are truly noise in the sense that they are completely independent of outcome regardless of which other variables are in the model.  The simulation comparisons in this paper demonstrate that with this definition mFDR has higher power to detect features than other methods.  The estimator tends to be conservative compared to the true false inclusion rate but our simulations and case studies suggest that it is a useful tool despite being conservative.
+Estimating the marginal false discovery rate of a penalized likelihood model is a useful way of assessing the reliability of a selected set of features. Unlike other approaches that have a similar goal, such as sample splitting or the covariance test, mFDR uses less strict definition of a false discovery which does not condition on any other variables and consequently only limits variables that are strictly noise. The simulation comparisons in this paper demonstrate that while mFDR is based upon a weaker false discovery definition, it can do quite well in limiting the number of correlated, non-causal variable selections.
 
-The mFDR estimator is currently implemented in R in the \text{ncvreg} package \citep{Breheny2011} using the \text{mFDR} function.  The function takes in a model it and provides estimates of the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model.  The function accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized regression models.
+The mFDR estimator is currently implemented in R in the \text{ncvreg} package \citep{Breheny2011} using the \text{mFDR} function. The function accepts an ncvreg fitted model  and provides estimates for the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model. The function accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized regression models.
 
-In the simulations and case studies the sample splitting approach had to be coded manually due to existing software being unable to handle logistic and survival models.  The covariance testing approach was implemented using the \text{CovTest} package \citep{CovTest} and the \text{forwardStop} function of the \text{SelectiveInference} package \citep{Selective_Inference}.  The authors of the package caution that the approach is experimental for logistic regression.  This lack of software adds to the appeal of using mFDR as a means to assess feature selection reliability after fitting penalized regression model with a binary or survival outcome.
+We also mention that in the simulations and case studies the sample splitting approach had to be coded manually due to existing software being unable to handle logistic and survival models. The covariance testing approach was implemented using the \text{CovTest} package \citep{CovTest} and the \text{forwardStop} function of the \text{SelectiveInference} package \citep{Selective_Inference}, but is cautioned as being developmental for logistic regression and is not currently implemented for Cox regression. The lack of software that can handle GLM and Cox models adds to the appeal of using mFDR to assess feature selection reliability after fitting penalized regression model with a binary or survival outcome.
