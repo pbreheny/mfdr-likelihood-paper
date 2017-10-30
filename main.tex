@@ -8,7 +8,7 @@ To address this question of selection reliability, Breheny (2016) originally pro
 
 \section{Marginal False Discovery Rates}
 
-False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery occurs when a feature $X_j$ is declared to be associated with an outcome $Y$ even though the feature is actually independent of the outcome: $X_j \independent Y$. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery is more complicated. A standard approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features: $X_j \independent Y | X_{k \neq j}$. Penalized likelihood methods typically result in only a subset of the available variables being active in the model, thereby motivating the \textit{pathwise conditional} perspective.  This perspective focuses on the model where $X_j$ first becomes active and conditions only on the other variables present in the model (denote this set $M_j$) at that time when assessing whether or not variable $j$ is a false discovery: $X_j \independent Y | X_k \text{ for } k \in \M_j$.
+False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery occurs when a feature $X_j$ is declared to be associated with an outcome $Y$ even though the feature is actually independent of the outcome: $X_j \independent Y$. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery is more complicated. A standard approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features: $X_j \independent Y | X_{k \neq j}$. Penalized likelihood methods typically result in only a subset of the available variables being active in the model, thereby motivating the \textit{pathwise conditional} perspective.  This perspective focuses on the model where $X_j$ first becomes active and conditions only on the other variables present in the model (denote this set $M_j$) at that time when assessing whether or not variable $j$ is a false discovery: $X_j \independent Y | X_k \text{ for } k \in M_j$.
 
 \begin{figure}[!htb]
 \centering
@@ -51,13 +51,14 @@ In the classical setting, the maximum likelihood estimate is found by setting th
 In a likelihood-based regression model, the likelihood depends on $\X$ and $\bb$ through a linear predictor $\be = \X\bb$; in other words, we can equivalently express the likelihood in terms of a loss function $f(\be|\y)=-\ell(\bb|\X,\y)$.
 In what follows, we assume that the loss function is strictly convex with respect to the linear predictors $\be$; note that this does not imply strict convexity with respect to $\bb$.
 Under these conditions, any solution $\bbh$ that minimizes \eqref{eq:obj} with the lasso penalty $P_{\lambda} (\bb) = \lambda||\bb||_1$ must satisfy \citep{lasso_kkt}:
-\begin{alignat*}{2}
+\begin{equation}
+  \label{eq:kkt}
+  \begin{alignedat}{2}
   \tfrac{1}{n}u_j(\bbh) &= \lam \textrm{ sign}(\hat{\beta}_j) &\quad \text{if } \hat{\beta}_j &\neq 0 \\
   \tfrac{1}{n}u_j(\bbh) &\in [-\lam,\lam]  &\quad \text{if }  \hat{\beta}_j &= 0
-\end{alignat*}
+  \end{alignedat}
+\end{equation}
 for $j \in \{1, \ldots, p\}$.
-
-%In penalized regression framework $f(X\bb) =  -\frac{1}{n}l(\be|X,\y)$ and $ \nabla f(X\bbh) = -\frac{1}{n} u(\beh)$, where $u$ is the unpenalized score function with respect to $\be$.
 
 \subsection{Estimation of mFDR}
 
@@ -79,7 +80,7 @@ In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:dia
 \begin{theorem}
   \label{Thm:main}
   For any solution $\bbh$ of the lasso-penalized objective \eqref{eq:obj}, we have $\bh_j \neq 0$ if and only if
-  \as{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam.}
+  \al{eq:selection}{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam.}
   Furthermore, provided that that (A1)-(A3) are satisfied and $\beta_j=0$,
   \as{\frac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 	%\as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
@@ -94,118 +95,30 @@ Since $\beta_j=0$, we then have
 \intertext{or}
 \tfrac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}}  &= \tfrac{u_j(\bb)}{\sqrt{v_j}} - \sqrt{\tfrac{n}{v_j}}[\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{\tfrac{n}{v_j}}\sqrt{n}\bh_j.}
 %\tfrac{1}{\sqrt{n}}u_j(\bbh) + \sqrt{n}v_j\bh_j &= \tfrac{1}{\sqrt{n}}u_j(\bb) - [\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{n}\bh_j.}
-The first term converges to $N(0,1)$ by (A1), the second term goes to zero by conditions (A2) and (A3), and the third term also goes to zero by (A3).
+Noting that $v_j/n=O(1)$, the first term on the right side of the equation converges to $N(0,1)$ by (A1); the second term goes to zero by conditions (A2) and (A3); and the third term also goes to zero by (A3).
 \end{proof}
 
 Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ is selected, given that it is marginally independent of the outcome, is approximately the probability that a random variable following a $N(0, v_j/n^2)$ distribution exceeds $\lam$ in absolute value.
 In principle, the expected number of marginal false selections could be obtained by summing this probability over the set of marginally independent noise variables; in practice, since the identity of this set is unknown, a conservative alternative is to sum over all $p$ variables.
 This gives the following estimators for the number and rate of marginal false discoveries:
-\al{eq:mfdr}{
+\als{eq:mfdr}{
   \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)\\
   \widehat{mFDR} &= \frac{\widehat{FD}}{|S|},
 }
-where $S$ is the set of selected variables and $|S|$ its size.
+where $S$ is the set of selected variables and $|S|$ its size.  Note that because $p$ is used an upper bound for the total number of noise features, the above estimator will be conservative.  In the scenario where most features are null, however, this effect will be relatively minor.
 
-Mention something about upper bound?
-
-\subsection{The mFDR Estimator (OLD)}
-
-TEMPORARILY LEAVING THIS SECTION AROUND FOR COMPARISON
-
-Suppose variable $j$ is a noise variable unrelated to $\y$ marginally, as depicted in Figure~\ref{Fig:diagram}. For a given value of $\lambda$ we use the KKT conditions to describe the probability that variable $j$ is selected by the lasso regression model.
-
-Let $\u(\bb) = \X^T \s(\be)$ denote the unpenalized score function with respect to $\bb$.  To proceed we require the following primary assumptions:
-
-\begin{itemize}
-\item A1: Asymptotic normality of the score function: $u(\bb) \xrightarrow{d} N(\zero,  E\big[l''(\bb)\big])$
-\item A2: Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T u'(\be)X_{-j} \rightarrow 0$
-\item A3: Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability and $\W = \nabla^2 f(\beh)$ is a consistent estimator of $-E\big[\nabla^2 f(\be)\big]$
-\end{itemize}
-
-\noindent{\textbf{Theorem}:} Provided these conditions are met:
-
-\begin{equation}
-Pr(\bh_j \neq 0)  \rightarrow Pr\big(\frac{1}{n}|\x_{j}^T \u(\be)| > \lambda\big)
-\end{equation}
-
-\begin{equation}
-\frac{1}{\sqrt{n}}\x_{j}^T u(\be) \rightarrow N\big(0, V\big) 
-\text{   where } V = \lim_{n \to \infty} \tfrac{1}{n}\x_{j}^T \W \x_{j}
-\end{equation}
-
-Which together imply:
-
-\begin{equation}
-Pr(\bh_j \neq 0)  = 2\Phi \bigg( \frac{-n\lambda}{\sqrt{ \x_j^TW\x_j}} \bigg)
-\end{equation}
-
-Where $\Phi$ represents the standard normal cumulative density function.
-
-\noindent{\textbf{Corollary}:}
-
-Using this result to estimate the expected number of marginal false selections simply requires summing over the set of noise variables, however in practice the identity of these variables is unknown. Instead summing over all $p$ variables provides a conservative upper bound and leads to the following:
-
-\begin{align}
-&\widehat{FD} = 2 \sum_{j=1}^{p} \Phi \bigg( \frac{-n\lambda}{\sqrt{\x_j^T W \x_j}} \bigg) & \widehat{mFDR} = \frac{\widehat{FD}}{|S|}
-\end{align}
-
-The estimated marginal false discovery rate, $\widehat{mFDR}$ is defined to be the ratio of estimated false selections to $|S|$, the total number of variables selected by the lasso model.
-
-\begin{proof}
-
-We begin with the KKT conditions required for the selection of variable $j$.  These conditions directly imply:
-
-\begin{equation*}
-Pr(\hat{\beta}_j \neq 0)  = Pr\big(\frac{1}{n}|\x_{j}^T u(\beh)| = \lambda\big)  = Pr\big(\frac{1}{n}|u(\bbh)_j| = \lambda\big)
-\end{equation*}
-
-Next we approximate $u(\bbh)$ using a first order Taylor Series expansion centered at $\bb$:
-
-\begin{equation*}
-u(\bbh) \sim u(\bb) + u'(\bb)( \bbh - \bb) 
-\end{equation*}
-
-\begin{equation*}
-\implies \x_j^T \s(\beh) \sim \x_j^T \s(\be) +  \x_j^T f''(\be) ( \beh - \be)
-\end{equation*}
-
-This leads to the selection requirement being approximately equivalent to:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T \big( \s(\be) + f''(\be) (\beh - \be)  \big) | = \lambda
-\end{equation*}
-
-Because variable $j$ is unrelated to the outcome $\be= X_{-j}\bb_{-j}$.  Additionally we separate $\beh$ into $X_{-j}\bbh_{-j} + \x_j^T\beta_j$ leading to the following expression for the selection requirement:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) + \x_j^T f''(\be)\x_j \hat{\beta}_j |  = \lambda
-\end{equation*}
-
-Because sign$(\bh_j) =$ sign$(\x_j^T \s(\be))$ the selection requirement can be expressed by the inequality:
-
-\begin{equation*}
-\frac{1}{n}|\x_j^T  \s(\be) + \x_j^T f''(\be)X_{-j}(\bbh_{-j} -  \bb_{-j}) |  \geq \lambda
-\end{equation*}
-
-Assumptions A2 and A3 imply:
-
-\begin{equation*}
-\frac{1}{n}\x_j^T f''(\be)X_{-j}\sqrt{n}(\bbh_{-j} -  \bb_{-j})  \rightarrow 0
-\end{equation*}
-
-Thus we have arrived at (1).  Assumption A1 leads directly to the distributional result in (2) which in turn leads directly to the estimators in (4).\qedhere
-
-\end{proof}
-  
 \subsection{Other Penalty Functions}
 
-The KKT conditions are necessitated by the use of a non-differentiable penalty function. While the lasso penalty is one example of this, many other non-differentiable penalties exist and often have KKT conditions very similar to those of the lasso. This similarity allows the mFDR estimator to be easily adapted to these penalty functions. As an example we consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters $\lambda_1, \lambda_2$. The elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. The KKT conditions of elastic net dictate that for $\hat{\beta_j} \neq 0$:
+The form of the mFDR estimator \eqref{eq:mfdr} is determined by the KKT conditions \eqref{eq:kkt}.  Although the theorem in previous Section is specific to the lasso, many other penalties proposed in the literature have very similar KKT conditions. This in turn allows the mFDR estimator to be easily extended to other penalized methods.
 
-\begin{equation*}
-\frac{1}{n}\x_{j}^T u_j(\bbh) = \lambda_1 sign(\hat{\beta}_j) + \lambda_2 \hat{\beta}_j
-\end{equation*}
+For example, consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters: $\lambda_1$ and $\lambda_2$, with $\lam_1, \lam_2 >0$. The elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. The resulting KKT conditions dictate that $\hat{\beta_j} \neq 0$ if and only if
+\as{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam_1.}
+Compared with the corresponding equation for the lasso \eqref{eq:selection}, the only change is that the right hand side of the selection condition has changed from $\lam$ to $\lam_1$.  Thus, equation \eqref{eq:mfdr} applies to the elastic net as well, with a similarly trivial change (replacing $\lam$ with $\lam_1$.  Note that the actual estimates $\bbh$ (and as a result $\hat{\W}$, $\hat{v}$, and $\abs{S}$) may certainly change a great deal, and thus the resulting inferences may be very different, but the form of the estimator is nearly identical.
 
-Compared with the lasso, only the right hand side of the selection condition has changed. Because $\lambda_1 + \lambda_2|\hat{\beta}_j| \geq \lambda_1$ the same inequality that we derived to express feature selection by the lasso also applies to the elastic net, allowing for an identical mFDR estimator to be used. Other notable penalties which result in the same estimator are the minimax concave penalty (MCP) introduced by \citet{MCP} and the smoothly clipped absolute deviations (SCAD) penalty introduced by \citet{SCAD}. Both MCP and SCAD are non-convex penalties that produce sparse estimates like the lasso, but they have the benefit of relaxing the degree of penalization on variables with large effects. This leads to solutions with greater sparsity and less biased coefficient estimates. We note that while many penalties will lead to the same estimator asymptotically, the exact conditions required to achieve (A3) will differ. This can be seen in simulation studies presented later in the paper, which include results for both the lasso and MCP penalties.
+Furthermore, in some cases, such as the minimax concave penalty \citep[MCP; ][]{MCP} and the smoothly clipped absolute deviations \citep[SCAD; ][]{SCAD}, the form of the estimator is exactly the same.  In other words, equation~\eqref{eq:selection} holds for these penalties as well as the lasso, and therefore the form of the mFDR estimator is unchanged from \eqref{eq:mfdr} -- although again, the actual estimates $\bbh$ and any quantities based on them will be very different.
+
+non-convex penalties that produce sparse estimates like the lasso, but they have the benefit of relaxing the degree of penalization on variables with large effects. This leads to solutions with greater sparsity and less biased coefficient estimates. We note that while many penalties will lead to the same estimator asymptotically, the exact conditions required to achieve (A3) will differ. This can be seen in simulation studies presented later in the paper, which include results for both the lasso and MCP penalties.
+
 
 \subsection{Logistic Regression}
 
