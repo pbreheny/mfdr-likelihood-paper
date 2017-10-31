@@ -70,7 +70,7 @@ Three regularity conditions are required for these theoretical results to hold. 
 
 \begin{itemize}
 \item (A1) Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
-\item (A2) Vanishing correlation between noise variables: $\frac{1}{n}\x_j^T\W\X_{-j} \inP \zero$.
+\item (A2) Vanishing correlation: $\frac{1}{n}\x_j^T\W\X_{-j} \inP \zero$.
 \item (A3) Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability.
 \end{itemize}
 
@@ -85,7 +85,6 @@ In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:dia
   \as{\frac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 	%\as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 \end{theorem}
-
 
 \begin{proof}
   The first remark follows directly from the KKT conditions and the fact that, if the loss function is strictly convex, then $\W$ is positive definite and $v_j$ is positive.  The asymptotic normality of the score function (A1) implies that the following Taylor series expansion holds:
@@ -121,28 +120,23 @@ It is worth noting that MCP and SCAD differ from the the lasso by relaxing the d
 
 \subsection{Logistic Regression}
 
-So far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$, which results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \exp(\eta_i)/\{1 + \exp(\eta_i)\}$.
+So far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
 
-%\begin{equation*}
-%L(\be) = \prod_{i=1}^{n} \pi_i^{y_i} (1 - \pi_i)^{1 - y_i}
-%\end{equation*}
-
-Provided the log-likelihood is a convex function of $X\bb$, which clearly applies to logistic regression, the mFDR estimator depends on the likelihood via the structure of $\W$, which is needed to calculate $\hat{v}_j$. For logistic regression $\W$ is a diagonal matrix with the $i^{th}$ diagonal element given by $\pi_i(1 - \pi_i)$. We estimate $\hat{\pi}_i = \exp(\x_i^T\hat{\bb})/\{1 +\exp(\x_i^T\hat{\bb})\}$ which by (A3) leads to a consistent estimator of $v_j$.
+The asymptotic normality of the score function for logistic regression (A1) is established in \citet{McCullagh1989}, among other places, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for logistic regression (A3) can be found in \citet{SCAD}.
 
 \subsection{Cox Regression}
 
-Another setting where mFDR can be used is penalized Cox regression. Here the outcome of interest contains two components, a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
+The conclusions of Theorem~\ref{Thm:main} also apply to penalized Cox regression. Here the outcome of interest contains two components: a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
 
-Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $k$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the Cox partial likelihood \citep{Cox1972}:
-
+Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $j$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the Cox partial likelihood \citep{Cox1972}:
 \begin{equation*}
-L(\be)  = \prod_{k=1}^{m} \frac{\exp(\be_k)}{\sum_{r \in R_k} \exp(\be_r) } 
+L(\be)  = \prod_{j=1}^{m} \frac{\exp(\eta_j)}{\sum_{i \in R_j} \exp(\eta_i).} 
 % \prod_{k=1}^{m} \frac{\exp(\x_k^T\bb)}{\sum_{r \in R_k} \exp(\x_r^T\bb) } 
 \end{equation*}
 
-Because the partial likelihood is a convex function of $X\bb$, the KKT conditions described in Section 2.2 apply in the same way which they applied to the full likelihood in the logistic regression case. Although when estimating mFDR an additional consideration is necessary for (A2) to hold, here we also require noise variables be uncorrelated with each other with respect to their influence on the censoring mechanism. This additional requirement is needed because when a variable is related to the censoring mechanism its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce to correlations between the noise variables that would otherwise be uncorrelated. The impact of this additional concern on the $\widehat{mFDR}$ is further assessed via simulation in section 3.3. 
+Letting $\pi_{ij} = \exp(\eta_i)/\sum_{k \in R_j}\exp(\eta_k)$, the $i$th diagonal element of $\W$ is $\sum_j d_j\pi_{ij}(1-\pi_{ij})$, while its $i,k$th off-diagonal element is given by $-\sum_j d_j\pi_{ij}(1-\pi_{kj})$.  As discussed in \citet{Simon2011}, however, the off-diagonal elements of $\W$ are typically negligible except for very small sample sizes.  Thus, for the simulations we present in this paper, we took the off-diagonal elements of $\W$ to be zero in order to speed up the calculations.  We found no meaningful difference in the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
 
-As with penalized logistic regression, the mFDR estimator for penalized Cox regression depends on the likelihood through $\W$. In Cox regression the form of $\W$ is considerably more complicated due to the non-diagonal elements being non-zero. Motivated by the arguments in \citet{Simon2011} we simplify our estimate of $v_j$ by taking the off-diagonal elements of $\W$ to be zero in order to greatly improve computational efficiency. In simulations we found no difference the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
+The asymptotic normality of the score function for Cox regression (A1) is established in \citet{Andersen1982}, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for Cox regression (A3) can be found in \citet{Fan_scad}.  There are, however, some additional considerations considering censoring with respect to assumption (A2) in Theorem~\ref{Thm:main}.  As discussed earlier, (A2) holds for features that are marginally independent of all other features as well as the outcome.  For (A2) to hold for Cox regression, however, the feature must also be independent of the censoring mechanism.  This additional requirement is needed because when a variable is related to the censoring mechanism, its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce correlations between variables that would otherwise be uncorrelated. The impact of this additional concern on $\widehat{mFDR}$ is further assessed via simulation in Section 3.3. 
 
 \section{Simulations}
 
