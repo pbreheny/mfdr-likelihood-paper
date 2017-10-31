@@ -29,7 +29,7 @@ False discoveries are straightforward to define when conducting single variable 
 \caption{\label{Fig:diagram} Causal diagram showing three types of relationships between variables and the outcome.}
 \end{figure}
 
-In this paper we adopt the weaker \textit{marginal false discovery} definition \citep{Breheny2016}, which we illustrate using the causal diagram depicted in Figure~\ref{Fig:diagram}. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
+In this paper we adopt the weaker \textit{marginal false discovery} definition \citep{Breheny2017}, which we illustrate using the causal diagram depicted in Figure~\ref{Fig:diagram}. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
 
 Variable $B$ is is correlated with variable $Y$, but after adjusting for $A$ it is independent of $Y$. Depending upon the perspective taken, $B$ might or might not be considered a false discovery. In a fully conditional approach $B$ is considered a false discovery.  In a pathwise approach, however, whether $B$ is a false discovery or not depends on whether $A$ is active in the model.
 
@@ -121,17 +121,17 @@ It is worth noting that MCP and SCAD differ from the the lasso by relaxing the d
 
 \subsection{Logistic Regression}
 
-So far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$, which results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \frac{\exp(\eta_i)} {1 + \exp(\eta_i)}$.
+So far we have presented the mFDR estimator in the general setting of penalized likelihood optimization. One specific scenario where the estimator can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$, which results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with parameters $\pi_i = \exp(\eta_i)/\{1 + \exp(\eta_i)\}$.
 
 %\begin{equation*}
 %L(\be) = \prod_{i=1}^{n} \pi_i^{y_i} (1 - \pi_i)^{1 - y_i}
 %\end{equation*}
 
-Provided the log-likelihood is a convex function of $X\bb$, which clearly applies to logistic regression, the mFDR estimator depends on the likelihood via the structure of $\W$, which is needed to calculate $\hat{v}_j$. For logistic regression $\W$ is a diagonal matrix with the $i^{th}$ diagonal element given by $\pi_i(1 - \pi_i)$. We estimate $\hat{\pi}_i = \frac{\exp(\x_i^T\hat{\bb})} {1 +\exp(\x_i^T\hat{\bb})}$ which by (A3) leads to a consistent estimator of $v_j$.
+Provided the log-likelihood is a convex function of $X\bb$, which clearly applies to logistic regression, the mFDR estimator depends on the likelihood via the structure of $\W$, which is needed to calculate $\hat{v}_j$. For logistic regression $\W$ is a diagonal matrix with the $i^{th}$ diagonal element given by $\pi_i(1 - \pi_i)$. We estimate $\hat{\pi}_i = \exp(\x_i^T\hat{\bb})/\{1 +\exp(\x_i^T\hat{\bb})\}$ which by (A3) leads to a consistent estimator of $v_j$.
 
 \subsection{Cox Regression}
 
-Another setting where mFDR can be used is penalized Cox regression. Here the outcome of interest contains two components, a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.  
+Another setting where mFDR can be used is penalized Cox regression. Here the outcome of interest contains two components, a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
 
 Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $k$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the Cox partial likelihood \citep{Cox1972}:
 
