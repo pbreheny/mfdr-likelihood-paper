@@ -153,9 +153,9 @@ In this section and the next, we compare the proposed mFDR control method with s
 \subsection{Accuracy, sample size, and correlation}
 \label{Sec:accuracy}
 
-Potential inaccuracy of $\widehat{mFDR}$ arises primarily from two places: first, in the convergence of the score function to its asymptotic distribution, and second, in the convergence of the remainder term to zero. To study the impact of these sources upon accuracy of the mFDR estimator, we varied two factors: sample size, which will impact both of sources of inaccuracy, and correlation between noise variables, which impacts the remainder term. We evaluate accuracy by comparing $\widehat{mFDR}$ with the true mFDR -- i.e., the observed proportion of noise variables -- at each value of a fixed $\lambda$ sequence averaged across 1,000 simulated data sets.
+Potential inaccuracy of $\widehat{mFDR}$ arises primarily from two places: first, in the convergence of the score function to its asymptotic distribution, and second, in the convergence of the remainder term to zero. To study the impact of these sources upon accuracy of the mFDR estimator, we varied two factors: sample size, which will impact both of sources of inaccuracy, and correlation between noise variables, which impacts the remainder term. We evaluate accuracy by comparing $\widehat{mFDR}$ with the true mFDR -- i.e., the observed proportion of noise variables -- at each value of a fixed $\lambda$ sequence averaged across 1,000 simulated data sets. Censoring can also influence accuracy of $\widehat{mFDR}$ for Cox regression, however in this simulation we do not censor any survival outcomes, we instead evaluate the effects of censoring separately in the next section.
 
-%% NOTE: NEED TO MENTION CENSORING FOR COX REGRESSION HERE -- IS THERE CENSORING IN THIS SIMULATION?
+%% NOTE: NEED TO MENTION CENSORING FOR COX REGRESSION HERE -- IS THERE CENSORING IN THIS SIMULATION? -- added a sentence above, not sure if it belongs here or a different spot
 
 We generate our data using $p = 40$ with $\beta_{1:4} = 10/\sqrt{n}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 in increments of 100. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early, while false selections are extremely rare until the very end of $\lambda$ sequence, which makes the ``interesting'' region (where the mFDR is not close to 0 or to 1) to be very small.
 
@@ -208,7 +208,7 @@ In scenario A, the association with censoring induces correlation between the no
 
 In this section, we compare our proposed mFDR approach with other methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in Figure~\ref{Fig:diagram}, using $n = 400$ and $p = 1000$ with ten variables are causally related to the outcome, like ``A'', such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each causal variable we generate nine correlated ($\rho = 0.5$) variables, akin to ``B''. The remaining 900 variables are noise, akin to ``C'', however they are correlated with each other such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR estimator will be conservative.
 
-%% NOTE: Should the x-axis label here be ``b''?
+%% NOTE: Should the x-axis label here be ``b''? -- fixed
 
 \begin{figure} [b!]
  \centering
@@ -227,7 +227,7 @@ We assess the average number of selections for each variable type (``A'', ``B'',
 
 The results of this simulation are shown in Figure~\ref{Fig:lassopower}.  Compared to other false discovery rate control methods for penalized regression, the mFDR approach selects more causally important variables at every value of $b$. The covariance testing approach in particular selects far fewer causal features in the logistic regression setting than either mFDR or sample splitting, although it should be noted that despite being available in the {\tt CovTest} R package, the covariance test for logistic regression is currently considered to be experimental by the package creators.  The covariance test is not shown for Cox regression as this has not yet been implemented in the package.
 
-%% NOTE: Change var to Type
+%% NOTE: Change var to Type -- fixed
 
 \begin{figure} [!htb]
  \centering
@@ -235,11 +235,11 @@ The results of this simulation are shown in Figure~\ref{Fig:lassopower}.  Compar
   \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram} is plotted for cross validation as function of $\beta$.}
 \end{figure}
 
-%% NOTE: Clarification here, 80%, 10% -- how are B variables being counted?
+%% NOTE: Clarification here, 80%, 10% -- how are B variables being counted? -- Considering B vars are valid selections, changed text to 75% (~60 C sels/~80 total sels)
 
-Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As the figure shows, while cross-validation tends to select nearly all the ``A'' variables, it does not control number of false selections.  In fact, it selects an increasingly large number of noise variables as the signal strength $b$ increases. Whereas sample splitting, covariance testing, and mFDR all resulted in false discovery rates well under 10\% throughout our simulations, as many as $80\%$ of the selections made by cross validation were noise variables for larger values of $\beta$.
+Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As the figure shows, while cross-validation tends to select nearly all the ``A'' variables, it does not control number of false selections.  In fact, it selects an increasingly large number of noise variables as the signal strength $b$ increases. Whereas sample splitting, covariance testing, and mFDR all resulted in false discovery rates well under 10\% throughout our simulations, as many as $75\%$ of the selections made by cross validation were noise variables for larger values of $\beta$.
 
-%% NOTE: I don't understand what this sentence means...maybe let's talk about it and then we can reword and put it back in.
+%% NOTE: I don't understand what this sentence means...maybe let's talk about it and then we can reword and put it back in.  --- Keeping out for now
 %% This is particularly troublesome since these additional noise variable selections offer no advantage when it comes to selecting true variables in this scenario, thus highlighting a major difference between using the lasso for prediction and using the lasso for variable selection.
 
 \begin{figure} [!htb]
@@ -250,7 +250,7 @@ Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As th
 
 Figure~\ref{Fig:univariate} compares the mFDR and univariate approaches, both of which are designed to control the proportion of marginal false discoveries without making any claims pertaining to correlated, ``B'', variables. The top panels show that the two methods are comparable in terms of their ability to select the true causal variables.  The advantage of using a regression-based approach over univariate testing, however, is clearly seen when looking at the number of other selections.  Lasso with mFDR control greatly reduces the number of correlated (``B'') selections compared to univariate testing: whereas univariate testing tends to identify dozens of indirectly associated features as discoveries, lasso with mFDR control tends to select at most two.
 
-%% NOTE: Leftover from a previous version of this figure?
+%% NOTE: Leftover from a previous version of this figure? -- yes, can be removed
 %% The mFDR approach even does as well at limiting correlated variable selections as the sample splitting and covariance approaches which are based upon fully conditional and pathwise conditional false discovery definitions respectively, all three of these approaches make nearly zero correlated variable selections for all values of $\beta$.
 
 In Figure~\ref{Fig:univariate}, mFDR also selects far fewer noise (``C'') variables than univariate testing.  The reason for this is that the large number of ``B'' features selected by univariate testing allows it to select many more ``A'' and ``C'' features while maintaining the overall FDR at a level less than 10\%.  For this reason, Figure~\ref{Fig:univariate} is potentially somewhat misleading in terms of comparing mFDR and univariate testing in terms of their power to identify type ``A'' features.
@@ -296,13 +296,34 @@ In our analysis we aim to select important genes while controlling the marginal 
 
 In Figure~\ref{Fig:Shedden} we see a gap between the total number of selections and the expected number of false selections for many values of $\lambda$.  This indicates that for these values of $\lam$, many of the genes selected by the lasso are likely to be truly related to survival, as it would be unlikely for so many noise features to selected merely by random chance.
 
-Using a target 10\% mFDR, we select 9 genes associated with survival.  For comparison we analyze the data using the approach proposed by \citet{Meinshausen2009}, which repeatedly performs sample splitting using a large number random splits. Using this approach we are unable to select any genes.  As mentioned earlier, the {\tt covTest} package does not (currently) accommodate survival data.
+\begin{table}[htb!]
+\centering
+\begin{tabular}{c | r r r r r }
+  \hline
+lasso & $\lambda$ & EF & S & mFDR & cross validation error \\ 
+	\hline
+	CV & 0.118 & 13.53 & 16 & 84.6\% &  1319.5 \\
+	CV(1se) &   &   &   &    &  \\
+	mFDR & 0.146 & 0.52 & 8 & 6.6\% & 1326.9 \\
+\hline
+MCP & $\lambda$ & EF & S & mFDR  & cross validation error \\
+	\hline
+	CV & 0.137 & 1.56 & 8 & 19.5\% &  1310.2 \\
+	CV(1se) &  &  &  &  &   \\
+	mFDR & 0.155 & 0.16 & 2 & 8.2\% &  1314.1 \\
+		\hline
+\end{tabular}
+\caption{\label{Tab:shedden} Results comparing different $\lambda$ choices, along the default sequence generated by {\tt ncvreg}, using the lasso and MCP penalties on the Shedden data }
+\end{table}
 
-%%leads to a choice of $\lambda$ that selects 9 genes. Using cross validation results in the selection of a much smaller $\lambda$ and selects of 28 genes.  However, the estimated mFDR at this choice of $\lambda$ is 100\% -- i.e., the expected number of noise features exceeds the number of actual variables selected -- indicating that many of these selections are likely to be noise variables.  Using the MCP penalty, the targeted 10\% mFDR threshold results in the selection of only 2 genes, reflecting the tendency of MCP to lead to more parsimonious models.
+Table~\ref{Tab:shedden} displays results for various $\lambda$ values and penalty functions that an analyst might consider when modeling the Shedden data. The uniform shrinkage applied by the lasso inherently creates a tradeoff between optimal prediction and accurate variable selection. In this case, we see that the most predictive lasso model, where $\lambda$ is selected using cross validation, has an estimated mFDR of 84.6\%. While we know this estimate tends to be conservative, it is still an indication that we'd expect a large portion of these selections to be noise variables. Conversely, if we aim to control the number of noise variable selections to be at most 10\%, we end up with a lasso model that is appreciably less accurate. 
 
-%% NOTE: We need to discuss cross-validation here...I'm not convinced these results are correct.  You write that MCP+CV selects 26 genes.  When I tried it, I found that MCP+CV selects 26 features, but 18 were baseline covariates, only 8 were genetic.  Striking CV from here for now, but would like to include in next version.
+An alternative approach is to use the MCP penalty, which relaxes the degree of shrinkage it placed on large coefficients, thereby allowing for a better balance between prediction and accurate variable selection. The MCP model with $\lambda = 0.137$ achieves the best prediction has an estimated mFDR of only 19.5\%, leading us to be fairly confident in the 8 variables it selects. Furthermore, despite being noticeably more sparse, both of the MCP models displayed in Table~\ref{Tab:shedden} provide better prediction than even the best lasso model, demonstrating the strength of MCP in applications like this one where two variables, 205308\_at, and 221249\_s\_at, have very large effects. In the lasso model with $\lambda$ selected by cross validation these variables have coefficients of -0.170 and -0.118 respectively, while in the MCP model these variables have coefficients of -0.220, -0.175 despite the value of $\lambda$ being larger. This is illustrative of the tendency for cross-validated lasso models to accommodate large effects by choosing a lower $\lambda$, which comes at the cost of allowing many noise variables into the model.
+% Maybe we don't need the last two sentences of the above paragraph
 
-%% NOTE: Do we need both approaches here?  I think only the adjusted one is relevant.
+For comparison we also analyze the data using the approach proposed by \citet{Meinshausen2009}, which repeatedly performs sample splitting using a large number random splits. Using this approach we are unable to select any genes.  As mentioned earlier, the {\tt covTest} package does not (currently) accommodate survival data.
+
+%%Using a target 10\% mFDR, we select 9 genes associated with survival.  For comparison we analyze the data using the approach proposed by \citet{Meinshausen2009}, which repeatedly performs sample splitting using a large number random splits. Using this approach we are unable to select any genes.  As mentioned earlier, the {\tt covTest} package does not (currently) accommodate survival data.
 
 We also apply a large scale univariate testing approach to the Shedden data, fitting a series of Cox regression models adjusting for all clinical covariates and containing a single gene.  After using the Benjamini-Hochberg procedure to control the false discovery rate at 10\%, this approaches selects 803 genes, far more than any of the regression-based approaches.  As discussed in Section~\ref{Sec:sim-comp}, the primary difference between univariate and regression-based methods with respect to false discoveries is that univariate approaches tend to select large numbers of features that are indirectly correlated with the outcome.  Our simulation results would suggest that for these data, univariate testing yields a large number of genes, most of which are only indirectly associated with survival, while the mFDR approach yields a smaller number of genes, most of which are directly associated with survival.
 
@@ -312,38 +333,33 @@ We also apply a large scale univariate testing approach to the Shedden data, fit
 
 % NOTE: Should this table go out further, to show CV lambda?
 
-\begin{table}[ht]
+\begin{table}[htb!]
 \centering
-\begin{tabular}{c|rrr|rrr}
+\begin{tabular}{c | r r r r r r }
   \hline
- & & lasso & & & MCP & \\
-$\lambda$ & EF & S & mFDR & EF & S & mFDR \\ 
-  \hline
-0.2041 & 0.00 &   0 & 0.00 & 0.00 &   0 & 0.00 \\ 
-  0.1980 & 0.00 &   2 & 0.00 & 0.00 &   2 & 0.00 \\ 
-  0.1921 & 0.00 &   4 & 0.00 & 0.00 &   2 & 0.00 \\ 
-  0.1864 & 0.00 &   6 & 0.00 & 0.00 &   3 & 0.00 \\ 
-  0.1809 & 0.01 &   6 & 0.00 & 0.01 &   4 & 0.00 \\ 
-  0.1755 & 0.02 &   6 & 0.00 & 0.02 &   4 & 0.01 \\ 
-  0.1702 & 0.04 &   6 & 0.01 & 0.04 &   4 & 0.01 \\ 
-  0.1652 & 0.08 &   8 & 0.01 & 0.08 &   5 & 0.02 \\ 
-  0.1602 & 0.15 &   9 & 0.02 & 0.14 &   5 & 0.03 \\ 
-  0.1555 & 0.27 &   8 & 0.03 & 0.25 &   5 & 0.05 \\ 
-  0.1508 & 0.47 &   8 & 0.06 & 0.42 &   5 & 0.08 \\ 
-  0.1463 & 0.78 &  10 & 0.08 & 0.69 &   5 & 0.14 \\ 
-  0.1420 & 1.27 &  10 & 0.13 & 1.10 &   5 & 0.22 \\ 
-  0.1377 & 2.00 &  11 & 0.18 & 1.72 &   8 & 0.22 \\ 
-  0.1336 & 3.10 &  13 & 0.24 & 2.69 &   7 & 0.38 \\ 
-   \hline
+lasso & $\lambda$ & EF & S & mFDR & misclassification error & cross validation error \\ 
+	\hline
+	CV & 0.048 & 49 & 49 & 100\% & 25.5\% & 1.072 \\
+	CV(1se) & 0.122 & 10.063 & 16 & 62.9\% & 33.9\% & 1.240 \\
+	mFDR & 0.146 & 0.785 & 10 & 7.8\% &  33.9\% & 1.288 \\
+\hline
+MCP & $\lambda$ & EF & S & mFDR & misclassification error & cross validation error \\
+	\hline
+	CV & 0.061 & 15 & 15 & 100\% & 26.6\% & 1.120 \\
+	CV(1se) & 0.156 & 0.25 & 5 & 5.0\% & 31.8\% & 1.295 \\
+	mFDR & 0.1508 & 0.42 & 5 & 8.4\% &  31.3\% & 1.286 \\
+		\hline
 \end{tabular}
- \caption{\label{Tab:spira} Estimated mFDR results for the Spira data at 15 values of the $\lambda$ sequence which straddle our target mFDR.  EF=Estimated number of False discoveries, S=number of selected genes.}
+\caption{\label{Tab:spira} Results comparing different $\lambda$ choices using the lasso and MCP penalties on the Spira data }
 \end{table}
 
-Table~\ref{Tab:spira} presents estimated marginal false discovery rates for various values of $\lam$ near 10\%.  The largest number of genes we can select without exceeding a 10\% mFDR is ten, and occurs at $\lam=0.1463$.  Cross validation selects a $\lambda$ of 0.056; although not shown on this table, the estimated number of false discoveries at that value of $\lam$ exceeds the number of selected genes, resulting in an estimated mFDR of 100\%.  As discussed throughout the paper, this number should be taken more as an upper limit than an unbiased estimate, but the overall implication is clear: at $\lam=0.056$, it is very easy for noise features to enter a lasso model by chance alone, so one should be very cautious about drawing conclusions concerning the variables selected by cross-validation, as false discoveries are likely abundant.
+Table~\ref{Tab:spira} shows results for various $\lambda$ values and penalty functions applied to the Spira data.  In contrast with the Shedden case study, here cross validation selects a $\lambda$ value which results in an estimated mFDR of 100\% for both the lasso and MCP penalties.  As discussed throughout the paper, this should be taken more as an upper limit than as an unbiased estimate, but the overall implication is that it is easy for many noise variables to enter these models by chance along and we should be cautious about making conclusions concerning variables selected by cross validation.
+
+%% Table~\ref{Tab:spira} presents estimated marginal false discovery rates for various values of $\lam$ near 10\%.  The largest number of genes we can select without exceeding a 10\% mFDR is ten, and occurs at $\lam=0.1463$.  Cross validation selects a $\lambda$ of 0.056; although not shown on this table, the estimated number of false discoveries at that value of $\lam$ exceeds the number of selected genes, resulting in an estimated mFDR of 100\%.  As discussed throughout the paper, this number should be taken more as an upper limit than an unbiased estimate, but the overall implication is clear: at $\lam=0.056$, it is very easy for noise features to enter a lasso model by chance alone, so one should be very cautious about drawing conclusions concerning the variables selected by cross-validation, as false discoveries are likely abundant.
 
 %% NOTE: IS THIS CONSISTENTLY THE CASE?  IF YOU RUN CROSS VALIDATION A FEW TIMES, DO YOU EVER GET SOMETHING CLOSER LIKE, SAY, 9 GENES OR SOMETHING?
 
-Using the MCP penalty instead of the lasso for this data, at a 10\% mFDR we select a $\lambda$ value of 0.1508, corresponding to 5 genes.  Using cross validation, 14 genes are selected, although the estimated mFDR is again 100\%.  The comments regarding mFDR and cross validation in the previous paragraph apply to MCP as well, although the disparity between the mFDR model and CV model is smaller than for the lasso.
+%% Using the MCP penalty instead of the lasso for this data, at a 10\% mFDR we select a $\lambda$ value of 0.1508, corresponding to 5 genes.  Using cross validation, 14 genes are selected, although the estimated mFDR is again 100\%. The comments regarding mFDR and cross validation in the previous paragraph apply to MCP as well, although the disparity between the mFDR model and CV model is smaller than for the lasso.
 
 We also analyzed this data using the sample splitting and covariance testing approaches.  The sample splitting approach, using 100 random splits, does not select any features after controlling the false discovery rate. Only a single gene reached the second stage in at at least half of the splits but its median p-value was not significant. Similarly the covariance testing approach also does not select any features.  The first variable to enter the model has a p-value of 0.475 and when the ForwardStop procedure is applied we are unable to move beyond the intercept only model without the false discovery rate exceeding 10\%.
 
@@ -355,6 +371,20 @@ Estimating the marginal false discovery rate of a penalized likelihood model is 
 
 The mFDR estimator is currently implemented in R in the {\tt ncvreg} package \citep{Breheny2011} using the {\tt mFDR} function. The function accepts an ncvreg fitted model and provides estimates for the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model.  These are obtained by calling {\tt mFDR(fit)}; the package also provides a plotting method, which produces plots like those in Figure~\ref{Fig:Shedden}.  The {\tt ncvreg} package accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized regression models.
 
-%% NOTE: Would be nice to mention time here (or in previous section): How long do each of these methods take to run?
+%% NOTE: Would be nice to mention time here (or in previous section): How long do each of these methods take to run?  -- added table and paragraph below
+\begin{table}[ht]
+ \caption{\label{Tab:time} The elapsed time, in seconds, of each approach in each of our case study analyses.}
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & mFDR & Sample Splitting & CovTest & Univariate Testing \\ 
+  \hline
+	Shedden & 7.0 & 1882.9 & NA & 232.1 \\
+Spira & 1.4 & 568.1 & 571.1 & 41.0 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+Table~\ref{Tab:time} displays the run time of each analysis approach used on the case study data of Section 4. For the Spira data, where $n = 192$ and $p =22215$, using {\tt ncvreg} to fit a penalized logistic regression model and then estimating the mFDR for the entire $\lam$ sequence takes only 1.4 seconds. This is nearly 30 times faster than univariate testing, and over 400 times faster than the model based approaches, sample splitting and CovTest.  Similar results are seen for the Shedden survival data.  The speed at which mFDR can be calculated makes it a useful addition to any penalized regression analysis.
 
 This manuscript has demonstrated how to extend control over the marginal false discovery rate for penalized regression models to any general likelihood-based loss function.  The method is shown to be more powerful than competing approaches and currently offers better software support.  Estimation of the marginal false discovery rate for penalized likelihood models is a fast, convenient, easily interpreted, and broadly useful approach to inference concerning the reliability of feature selection, and is capable of being generalized to a wide variety of penalty functions and regression modeling frameworks.
