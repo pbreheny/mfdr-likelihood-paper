@@ -3,3 +3,4 @@ mfdr-lik.pdf: mfdr-lik.tex main.tex
 	bibtex mfdr-lik
 	pdflatex mfdr-lik
 	pdflatex mfdr-lik
+	texwc
