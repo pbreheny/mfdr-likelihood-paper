@@ -206,8 +206,8 @@ In this section, we compare our proposed mFDR approach with other methods of var
 
 \begin{figure} [b!]
  \centering
-  \includegraphics[width=0.75\textwidth]{ggpower.pdf}
-  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$. \note{IN LEGEND: METHOD SHOULD BE CAPITALIZED}}
+  \includegraphics[width=0.75\textwidth]{ggpower2.pdf}
+  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$.}
 \end{figure}
 
 We assess the average number of selections for each variable type (``A'', ``B'', ``C'') after applying each of the following methods:
@@ -314,8 +314,8 @@ We also applied a large scale univariate testing approach to the Shedden data, f
 
 \subsection{Lung cancer status among smokers}
 
-\citet{Spira2007} collected RNA expression data from histologically normal bronchial epitheliums of $n = 192$ smokers, of which 102 had developed lung cancer and 90 had not developed lung cancer.
-\textcolor{red}{HOW MANY GENES ARE THERE?}
+\citet{Spira2007} collected RNA expression data corresponding to 22,215 genes from histologically normal bronchial epitheliums of $n = 192$ smokers, of which 102 had developed lung cancer and 90 had not developed lung cancer.
+%\textcolor{red}{HOW MANY GENES ARE THERE?}
 The goal of the study was to identify genes that are indicative of whether or not a smoker has lung cancer.  For our analysis we fit penalized logistic regression models, and compare the results using mFDR, cross validation, and the covariance test to choose $\lam$, as well as the genes selected via sample splitting.   We also compare these model-based approaches to the traditional univariate approach with false discovery rate control.
 
 \begin{table}[htb!]
@@ -342,9 +342,9 @@ Table~\ref{Tab:spira} shows results for the Spira data at various $\lambda$ valu
 
 As in the earlier case study, however, there is a price for restricting ourselves to features with a low false discovery rate.  The prediction error is considerably lower in the $\mFDR < 10\%$ lasso and MCP models than for the models selected by cross-validation.  In the Spira example, no genes have particularly large signals; as a result, the MCP approach is less successful than at finding a model that is attractive from both the mFDR and prediction perspectives than it was in the Shedden example.
 
-Neither the sample splitting nor covariance testing approaches were able to select a single feature at a 10\% FDR.
-At the more liberal threshold of 50\%, the sample splitting and covariance testing approaches each select a single gene.
-\textcolor{red}{IS THIS TRUE?}
+Neither the sample splitting nor covariance testing approaches were able to select a single feature at a 10\% FDR. Making just a single selection with these methods results in FDR estimates of 53.9\% and 62\% respectively.
+%At the more liberal threshold of 50\%, the sample splitting and covariance testing approaches each select a single gene.
+%\textcolor{red}{IS THIS TRUE?}
 %The sample splitting approach, using 100 random splits, does not select any features after controlling the false discovery rate.
 %Only a single gene reached the second stage in at at least half of the splits but its median p-value was not significant.
 %Similarly the covariance testing approach also does not select any features.
