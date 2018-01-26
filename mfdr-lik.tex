@@ -67,7 +67,7 @@
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 
-\title{Marginal false discovery rates for likelihood-based penalized regression models}
+\title{Marginal false discovery rate control for likelihood-based penalized regression models}
 \author{Ryan Miller\\Department of Biostatistics\\University of Iowa
   \and
   Patrick Breheny\\Department of Biostatistics\\University of Iowa}
@@ -77,7 +77,7 @@
 
 \maketitle
 
-\abstract{The recent popularity of penalized regression in high-dimensional data analysis has led to a demand for new inferential tools for these models. False discovery rate control is a well known aspect of other high-dimensional data analysis approaches that has only recently been considered in the context of penalized regression. However much of the current research has been focused primarily on lasso-penalized linear regression, despite the availability of software that can fit penalized regression models to a variety of likelihood-based models. In this paper we derive a method of estimating the marginal false discovery rate for penalized likelihood methods and demonstrate its application to penalized logistic and penalized Cox regression models. Our approach is fast, flexible and can be applied to a variety of penalty functions including lasso, elastic net, MCP, and MNet.  We derive theoretical results under which the proposed estimator is valid, and use simulation studies to demonstrate that the approach is reasonably robust, albeit slightly conservative, when these assumptions are violated.  The practical utility of the method is demonstrated on two gene expression data sets with binary and surival outcomes, which we respectively analyze using penalized logistic and penalized Cox regression.}
+\abstract{The popularity of penalized regression in high-dimensional data analysis has led to a demand for new inferential tools for these models. False discovery rate control is widely used in high-dimensional hypothesis testing, but has only recently been considered in the context of penalized regression.  Most of this work, however, has focused on lasso-penalized linear regression. In this paper, we derive a general method for controlling the marginal false discovery rate that can be applied to any penalized likelihood-based model, such as logistic regression and Cox regression. Our approach is fast, flexible and can be used with a variety of penalty functions including lasso, elastic net, MCP, and MNet.  We derive theoretical results under which the proposed estimator is valid, and use simulation studies to demonstrate that the approach is reasonably robust, albeit slightly conservative, when these assumptions are violated.  The practical utility of the method is demonstrated on gene expression data sets with binary and time-to-event outcomes.}
 
 \input{main}
 
