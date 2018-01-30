@@ -2,7 +2,8 @@
 
 High-dimensional data poses a challenge to traditional likelihood-based modeling approaches.  Penalized regression is an increasingly popular approach that is well suited to handle high-dimensional data.  An appealing aspect of many penalized methods is that they yield sparse models where only a subset of the available variables are ``selected'' by the model in the sense of having non-zero coefficient estimates.  The number of variables in the selected subset can be controlled by changing the degree of penalization, making penalized regression an attractive tool for variable selection in the high-dimensional setting.
 
-The most popular of these penalized methods is the least absolute shrinkage and selection operator (lasso) introduced by \citet{tibshirani_1996}. The lasso imposes a penalty on the L1 norm of the estimated regression coefficients that is governed by a single parameter, $\lambda$, such that larger values of $\lambda$ result in more sparse models. In this paper we focus on the variables that are selected by a penalized regression model and we examine how confident we should be that these selections have not arisen merely by chance. We investigate this question under the general setting of likelihood-based penalized regression models, which includes generalized linear models as well as Cox proportional hazards models under many popular penalties, including the lasso, SCAD \citep{SCAD}, MCP \citep{MCP}, and elastic net \citep{Elastic_Net}.
+The most popular of these penalized methods is the least absolute shrinkage and selection operator (lasso) introduced by \citet{tibshirani_1996}. The lasso imposes a penalty on the L1 norm of the estimated regression coefficients that is governed by a single parameter, $\lambda$, such that larger values of $\lambda$ result in more sparse models. In this paper we focus on the variables that are selected by a penalized regression model and we examine how confident we should be that these selections have not arisen merely by chance.
+We investigate this question under the general setting of likelihood-based penalized regression models, which includes generalized linear models as well as Cox proportional hazards models under many popular penalties, including the lasso, the minimax concave penalty \citep[MCP; ][]{MCP}, the smoothly clipped absolute deviations \citep[SCAD; ][]{SCAD}, and the elastic net \citep{Elastic_Net}.
 
 A fundamental challenge of inference under variable selection is how to account for the fact that the same data was used both to select features as well as to fit the model.  Nevertheless, several approaches to address this challenge have been proposed; we discuss two main categories of approaches here.
 
@@ -14,7 +15,7 @@ To address both of these drawbacks, \citet{BrehenyMFDR} proposed controlling the
 
 \section{Marginal false discovery rates}
 
-False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery occurs when a feature $X_j$ is declared to be associated with an outcome $Y$ even though the feature is actually independent of the outcome: $X_j \independent Y$. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery is more complicated. A standard approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features: $X_j \independent Y | X_{k \neq j}$. Penalized likelihood methods typically result in only a subset of the available variables being active in the model, thereby motivating the \textit{pathwise conditional} perspective.  This perspective focuses on the model where $X_j$ first becomes active and conditions only on the other variables present in the model (denote this set $M_j$) at that time when assessing whether or not variable $j$ is a false discovery: $X_j \independent Y | X_k \text{ for } k \in M_j$.
+False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery occurs when a feature $X_j$ is declared to be associated with an outcome $Y$ even though the feature is actually independent of the outcome: $X_j \independent Y$. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery is more complicated. The most common approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features: $X_j \independent Y | X_{k \neq j}$. Penalized likelihood methods typically result in only a subset of the available variables being active in the model, thereby motivating the \textit{pathwise conditional} perspective.  This perspective focuses on the model where $X_j$ first becomes active and conditions only on the other variables present in the model (denote this set $M_j$) at that time when assessing whether or not variable $j$ is a false discovery: $X_j \independent Y | X_k \text{ for } k \in M_j$.
 
 \begin{figure}[!htb]
 \centering
@@ -37,13 +38,13 @@ False discoveries are straightforward to define when conducting single variable 
 
 In this paper we derive our method under the less restrictive \textit{marginal false discovery} definition \citep{BrehenyMFDR}, which we illustrate using the causal diagram depicted in Figure~\ref{Fig:diagram}. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
 
-Variable $B$ is is correlated with variable $Y$, but after adjusting for $A$ it is independent of $Y$. Depending upon the perspective taken, $B$ might or might not be considered a false discovery. In a fully conditional approach $B$ is considered a false discovery.  In a pathwise approach, however, whether $B$ is a false discovery or not depends on whether $A$ is active in the model.
+Variable $B$, on the other hand, is a more subtle case: $B$ is is correlated with $Y$, but after adjusting for $A$, $B$ and $Y$ are independent. Depending upon the perspective taken, $B$ might or might not be considered a false discovery. In a fully conditional approach, $B$ is considered a false discovery.  In a pathwise approach, whether $B$ is a false discovery or not depends on whether $A$ is active in the model.
 
-In practice, however, both of these approaches suffer from the difficulty of determining the $A-B-Y$ relationship: is $A$ driving changes in $Y$ and $B$ merely correlated, or vice versa?  To avoid these these complications, the marginal perspective considers only variables like $C$ to be marginal false discoveries, a definition consistent with univariate testing.  Depending on the application, selecting variables like $B$ may or may not be a serious problem.  Regardless, it is almost always the case that pure noise variables like $C$ are the worst kind of selection a variable-selection procedure can identify.  Thus, while these other perspectives may also be helpful, controlling the marginal false discovery rate is useful in a wide variety of contexts.
+In practice, however, both of these approaches suffer from the difficulty of determining the $A-B-Y$ relationship: is $A$ driving changes in $Y$ and $B$ merely correlated, or vice versa?  Avoiding these complications is one of the primary motivations behind the marginal perspective, which is only concerned with false discoveries arising from variables like $C$.  Depending on the application, selecting variables like $B$ may or may not be problematic, but it is almost always the case that a pure noise variable like $C$ is the worst kind of feature to select.  This point, along with the fact that the marginal false discovery rate is easy to interpret, makes the mFDR broadly useful and informative, although certainly there are scenarios in which the conditional FDRs are useful as well.
 
 \subsection{Penalized likelihood optimization}
 
-Consider data of the usual form $(\y, \X)$, where $\y$ denotes the response variable(s) for $i = \{1, \ldots, n\}$ independent observations, and $\X$ is a matrix containing the values of $j = \{1, \ldots, p\}$ explanatory variables such that entry $x_{i,j}$ corresponds to the value of the $j^{\textrm{th}}$ variable for the $i^{\textrm{th}}$ observation.  We assume the columns of $\X$ are standardized such that each variable has a mean of $0$ and $\sum_i \x_j^2 = n$.
+Consider data of the usual form $(\y, \X)$, where $\y$ denotes the response for $i = \{1, \ldots, n\}$ independent observations, and $\X$ is a matrix containing the values of $j = \{1, \ldots, p\}$ explanatory variables such that entry $x_{i,j}$ corresponds to the value of the $j^{\textrm{th}}$ variable for the $i^{\textrm{th}}$ observation.  We assume the columns of $\X$ are standardized such that each variable has a mean of $0$ and $\sum_i \x_j^2 = n$.
 
 The explanatory variables in $\X$ are related to $\y$ through a probability model involving coefficients $\bb$.  The fit of the model to the data can be summarized using the log-likelihood, which we denote $\ell(\bb|X,\y)$.  In the classical setting, $\bb$ is estimated by maximizing $l(\bb|X,\y)$.  However, this approach is unstable in high dimensions unless an appropriate penalty, denoted $P_{\lambda}(\bb)$, is imposed on the size of $\bb$.
 In this case, $\bbh$ is found by minimizing the objective function
@@ -66,13 +67,20 @@ Under these conditions, any solution $\bbh$ that minimizes \eqref{eq:obj} with t
 \end{equation}
 for $j \in \{1, \ldots, p\}$.
 
-\subsection{Estimation of mFDR}
+\subsection{Marginal false discovery rate bounds for penalized likelihood methods}
+\label{Sec:main-results}
 
 In this section, we use classical distributional properties of the score function along with the KKT conditions given above to derive an upper bound for the number of marginal false discoveries in the lasso model.
 The basic intuition behind the derivation is that, given certain regularity conditions, if feature $j$ is a marginally independent of $\y$, then $Pr(\bh_j \neq 0)$ is approximately equal to $Pr(\tfrac{1}{n}\abs{u_j(\bb)} > \lam)$, where the classical score function $\u$ is evaluated at the true value of $\bb$ provided that the log-likelihood is correctly specified (i.e., that the model assumptions hold).
 Given this result, the asymptotic normality of the score allows us to estimate this tail probability, and with it, the expected number of marginal false discoveries at a given value of $\lam$.
 
-Three regularity conditions are required for these theoretical results to hold.  These are given below, where we let $\W = \nabla^2f$ denote the $n \times n$ matrix of second derivatives of the loss function with respect to $\be$, such that the classical Hessian matrix $\nabla^2 \ell (\bb) = -\X^T\W\X$.  We use $\W$ to denote this matrix evaluated at the true value of $\bb$ and $\hat{\W}$ if evaluated at the lasso estimate.  In addition, we let $v_j=\x_j^T\W\x_j$, with $\hat{v}_j$ defined similarly.
+Three regularity conditions are required for these theoretical results to hold.
+These are given below, where we let $\W = \nabla^2f$ denote the $n \times n$
+matrix of second derivatives of the loss function with respect to $\be$, such
+that the classical Hessian matrix $\nabla^2 \ell (\bb) = -\X^T\W\X$.  We use
+$\W$ to denote this matrix evaluated at the true value of $\bb$ and $\widehat{\W}$
+if evaluated at the lasso estimate.  In addition, we let $v_j=\x_j^T\W\x_j$,
+with $\hat{v}_j$ defined similarly.
 
 \begin{itemize}
 \item (A1) Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
@@ -80,8 +88,14 @@ Three regularity conditions are required for these theoretical results to hold. 
 \item (A3) Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability.
 \end{itemize}
 
-% Should this be here, or somewhere else?
-(A1) is a standard result of classical likelihood theory and can be shown for many types of models.  (A3) is not a trivial condition, but has been studied for various models and various types of penalties.  (A2), on the other hand, is original to this work and certainly the condition least likely to be met in practice.  Our theoretical results illustrate what is required for the proposal to work {\em perfectly}; the rest of the paper shows that our upper bound is still useful and reasonably accurate even when (A2) is violated, although it becomes somewhat conservative.  Indeed, in practice it is perhaps best to view (A2) not as a realistic assumption describing the data, but rather as a kind of worst-case scenario.  Here, we use ``worst-case'' in the sense that variable selection methods select the most features when those features are uncorrelated; when a group of features are correlated, these methods tend to select just one, thereby lowering the actual mFDR below what the theoretical results would predict.  Assumptions (A1)-(A3) are discussed in the specific cases of logistic and Cox regression later in this Section.
+(A1) is a standard result of classical likelihood theory and can be shown for many types of models.  (A3) is not a trivial condition, but has been studied and shown to hold for various models and various types of penalties under certain conditions.  (A2), on the other hand, is unlikely to be truly satisfied by most features in practice.
+Our theoretical results illustrate what is required for the proposal to work perfectly in the sense of providing a consistent estimate for the mFDR.
+In practice, (A2) serves as a worst-case scenario for the correlation structure in the sense that other correlation structures will, on average, lead to fewer false discoveries.
+Viewed as an estimator, this means that the mFDR equation we will derive \eqref{eq:mfdr} is inherently conservative, in the sense that it will overestimate the true mFDR.
+Viewed instead as a control procedure, this means that \eqref{eq:mfdr} provides a probabilistic upper bound on the false discovery rate, and that if we use this equation to limit the mFDR to, say, 10\%, we can be confident that the true mFDR is even smaller.
+
+The fundamental reason for this is that if a pool of noise features are uncorrelated, a variable selection method may select several of them, whereas if they are correlated, the method will tend to select just one.  More explicit results are shown in Section~\ref{Sec:sim}, which shows that when (A2) is violated, the mFDR bound is less tight, as one would expect.
+Assumptions (A1)-(A3) are further discussed in the specific cases of logistic and Cox regression later in this section.
 
 We now formally state our main theoretical result.  In interpreting this result, it is important to keep in mind that only features that are marginally independent of the outcome will satisfy both assumption (A2) and $\beta_j=0$.
 In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:diagram}, but not variable $B$: although the regression coefficient for $B$ is zero, its correlation with $A$ violates (A2).
@@ -90,13 +104,13 @@ In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:dia
   \label{Thm:main}
   For any solution $\bbh$ of the lasso-penalized objective \eqref{eq:obj}, we have $\bh_j \neq 0$ if and only if
   \al{eq:selection}{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam.}
-  Furthermore, provided that that (A1)-(A3) are satisfied and $\beta_j=0$,
+  Furthermore, provided that that feature j satisfies (A1)-(A3) and $\beta_j=0$,
   \as{\frac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 	%\as{\sqrt{n}\frac{\tfrac{1}{n}u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}} \inD N(0, 1).}
 \end{theorem}
 
 \begin{proof}
-  The first remark follows directly from the KKT conditions and the fact that, if the loss function is strictly convex, then $\W$ is positive definite and $v_j$ is positive.  The asymptotic normality of the score function (A1) implies that the following Taylor series expansion holds:
+  The first remark follows directly from the KKT conditions \eqref{eq:kkt} and the fact that, if the loss function $f(\be|\y)$ is strictly convex, then $\W$ is positive definite and $v_j$ is positive.  The asymptotic normality of the score function (A1) implies that the following Taylor series expansion holds:
 \as{\u(\bbh) = \u(\bb) - \X^T\W\X(\bbh - \bb) + o_p(n)(\bbh-\bb).}
 Since $\beta_j=0$, we then have
 \as{u_j(\bbh) &= u_j(\bb) - \x_j^T\W\X_{-j}(\bbh_{-j} - \bb_{-j}) - \x_j^T\W\x_j\bh_j + o_p(n)\bh_j,\\
@@ -110,45 +124,47 @@ Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ i
 In principle, the expected number of marginal false selections could be obtained by summing this probability over the set of marginally independent noise variables; in practice, since the identity of this set is unknown, a conservative alternative is to sum over all $p$ variables.
 This leads to the following upper bounds for the number and rate of marginal false discoveries:
 \als{eq:mfdr}{
-  \widehat{FD} &= 2 \sum_{j=1}^{p} \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)\\
-  \widehat{mFDR} &= \frac{\widehat{FD}}{|S|},
+  \widehat{\FD} &= 2 \sum_{j=1}^{p} \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)\\
+  \widehat{\mFDR} &= \frac{\widehat{\FD}}{|S|},
 }
-where $S$ is the set of selected variables and $|S|$ its size.  Note that because $p$ is used as an upper bound for the total number of noise features, $\widehat{FD}$ and $\widehat{mFDR}$ will be somewhat conservative even when (A1)-(A3) are fully satisfied.  However, in the scenario where most features are null, as is often presumed in many high dimensional applications, this effect will be relatively minor.
+where $S$ is the set of selected variables and $|S|$ its size.  Note that because $p$ is used as an upper bound for the total number of noise features, $\widehat{\FD}$ and $\widehat{\mFDR}$ will be somewhat conservative even when (A1)-(A3) are fully satisfied.  However, in the scenario where most features are null, as is often presumed in high dimensional applications, this effect will be relatively minor.
 
 \subsection{Other penalty functions}
 
-The form of the mFDR upper bound \eqref{eq:mfdr} is determined by the KKT conditions \eqref{eq:kkt}.  Although the theorem in previous Section is specific to the lasso, many other penalties proposed in the literature have very similar KKT conditions. This in turn allows our results to be easily extended to other penalized methods.
+The form of the mFDR calculation \eqref{eq:mfdr} is determined by the KKT conditions \eqref{eq:kkt}.  Although the theorem in previous Section is specific to the lasso, many other penalties proposed in the literature have very similar KKT conditions. This in turn allows our results to be easily extended to other penalized methods.
 
 For example, consider the elastic net \citep{Elastic_Net}, which utilizes two penalty parameters: $\lambda_1$ and $\lambda_2$, with $\lam_1, \lam_2 >0$. The elastic net solution is found by minimizing $-\frac{1}{n} \ell(\bb|X,\y) + \lambda_1 ||\bb||_1 + \frac{\lambda_2}{2}||\bb||_{2}^2 $. The resulting KKT conditions dictate that $\hat{\beta_j} \neq 0$ if and only if
 \as{\tfrac{1}{n}\abs{u_j(\bbh) + v_j\bh_j} > \lam_1.}
-Compared with the corresponding equation for the lasso \eqref{eq:selection}, the only change is that the right hand side of the selection condition has changed from $\lam$ to $\lam_1$.  Thus, equation \eqref{eq:mfdr} applies to the elastic net as well, with a similarly trivial change (replacing $\lam$ with $\lam_1$).  Note that the actual estimates $\bbh$ (and as a result $\hat{\W}$, $\hat{v}$, and $\abs{S}$) may certainly change a great deal, and thus the resulting inferences may be very different, but the form of the mFDR upper bound is essentially identical.
+Compared with the corresponding equation for the lasso \eqref{eq:selection}, the only change is that the right hand side of the selection condition has changed from $\lam$ to $\lam_1$.  Thus, equation \eqref{eq:mfdr} applies to the elastic net as well, with a similarly trivial change (replacing $\lam$ with $\lam_1$).  Note that the actual estimates $\bbh$ (and as a result $\widehat{\W}$, $\hat{v}$, and $\abs{S}$) may certainly change a great deal, and thus the resulting inferences may be very different, but the form of the mFDR upper bound is essentially identical.
 
-Furthermore, in some cases, such as the minimax concave penalty \citep[MCP; ][]{MCP} and the smoothly clipped absolute deviations \citep[SCAD; ][]{SCAD}, the form of the upper bound is exactly the same.  In other words, equation~\eqref{eq:selection} holds for these penalties as well as the lasso, and therefore the mFDR upper bound is unchanged from \eqref{eq:mfdr} -- although again, the actual estimates $\bbh$ and any quantities based on them will be very different.
+Furthermore, in some cases, such as for MCP and SCAD, the form of the upper bound is exactly the same.  In other words, equation~\eqref{eq:selection} holds for these penalties as well as the lasso, and therefore the mFDR upper bound is unchanged from \eqref{eq:mfdr} -- although again, the actual estimates $\bbh$ and any quantities based on them will be very different.
 
-It is worth noting here that MCP and SCAD differ from the the lasso by relaxing the degree of penalization on variables with large effects.  This leads to solutions with greater sparsity and reduced bias.  In particular, both theoretical analysis and simulation studies have demonstrated that estimation accuracy is typically better for MCP and SCAD than for the lasso \citep{MCP,SCAD,Breheny2011}.  Thus, as we will see later in the paper, the validity of regularity condition (A3) is typically better with finite sample sizes for these estimators than for the lasso.  As a consequence, our method tends to be less conservative for these models.
+It is worth noting here that MCP and SCAD differ from the the lasso by relaxing the degree of penalization on variables with large effects.  This leads to solutions with greater sparsity and reduced bias.  In particular, both theoretical analysis and simulation studies have demonstrated that convergence is typically faster for MCP and SCAD than for the lasso \citep{MCP,SCAD,Breheny2011}.  Thus, as we will see later in the paper, the accuracy of regularity condition (A3) is typically better at finite sample sizes for these estimators than for the lasso and as a consequence, the resulting mFDR bound is tighter (i.e., less conservative).
 
 \subsection{Logistic regression}
 
-So far we have presented our results in the general setting of penalized likelihood optimization. One specific scenario where mFDR can be applied is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
+So far we have presented our results in the general setting of penalized likelihood optimization. One specific type of model to which Section~\ref{Sec:main-results} applies is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
 
 The asymptotic normality of the score function for logistic regression (A1) is established in \citet{McCullagh1989}, among other places, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for logistic regression (A3) can be found in \citet{SCAD}.
 
 \subsection{Cox regression}
 \label{Sec:cox}
 
-The conclusions of Theorem~\ref{Thm:main} also apply to penalized Cox regression. Here the outcome of interest contains two components: a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
+The results of Section~\ref{Sec:main-results} also apply to penalized Cox proportional hazards regression. Here the outcome of interest contains two components: a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
 
-Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $j$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the Cox partial likelihood \citep{Cox1972}:
+Let $t_1 < t_2 < \ldots < t_m$ be an increasing list of unique failure times indexed by $j$. The Cox model assumes a semi-parametric form of the hazard such that $h_i(t) = h_0(t)e^{\x_i^T \bb}$, where $h_i(t)$ is the hazard for observation $i$ at time $t$ and $h_0(t)$ is a common baseline hazard. Cox regression is based upon the partial likelihood \citep{Cox1972}
 \begin{equation*}
-L(\be)  = \prod_{j=1}^{m} \frac{\exp(\eta_j)}{\sum_{i \in R_j} \exp(\eta_i).} 
+L(\be)  = \prod_{j=1}^{m} \frac{\exp(\eta_j)}{\sum_{i \in R_j} \exp(\eta_i),} 
 % \prod_{k=1}^{m} \frac{\exp(\x_k^T\bb)}{\sum_{r \in R_k} \exp(\x_r^T\bb) } 
 \end{equation*}
+where $R_j$ denotes the set of observations still at risk at time $t_j$, known as the risk set.
 
-Letting $\pi_{ij} = \exp(\eta_i)/\sum_{k \in R_j}\exp(\eta_k)$, the $i$th diagonal element of $\W$ is $\sum_j d_j\pi_{ij}(1-\pi_{ij})$, while its $i,k$th off-diagonal element is given by $-\sum_j d_j\pi_{ij}(1-\pi_{kj})$.  As discussed in \citet{Simon2011}, however, the off-diagonal elements of $\W$ are typically negligible except for very small sample sizes.  Thus, for the simulations we present in this paper, we took the off-diagonal elements of $\W$ to be zero in order to speed up the calculations.  We found no meaningful difference in the accuracy of $\widehat{mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
+Letting $\pi_{ij} = \exp(\eta_i)/\sum_{k \in R_j}\exp(\eta_k)$, the $i$th diagonal element of $\W$ is $\sum_j d_j\pi_{ij}(1-\pi_{ij})$, while its $i,k$th off-diagonal element is given by $-\sum_j d_j\pi_{ij}(1-\pi_{kj})$.  As discussed in \citet{Simon2011}, however, the off-diagonal elements of $\W$ are typically negligible except for very small sample sizes.  Thus, for the simulations we present in Section~\ref{Sec:sim}, we took the off-diagonal elements of $\W$ to be zero in order to speed up the calculations.  We found no meaningful difference in the calculation of $\widehat{\mFDR}$ when using the diagonal approximation of $\W$ in place of the full matrix.
 
-The asymptotic normality of the score function for Cox regression (A1) is established in \citet{Andersen1982}, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for Cox regression (A3) can be found in \citet{Fan_scad}.  There are, however, some additional considerations considering censoring with respect to assumption (A2) in Theorem~\ref{Thm:main}.  As discussed earlier, (A2) holds for features that are marginally independent of all other features as well as the outcome.  For (A2) to hold for Cox regression, however, the feature must also be independent of the censoring mechanism.  This additional requirement is needed because when a variable is related to the censoring mechanism, its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce correlations between variables that would otherwise be uncorrelated. The impact of this additional concern on $\widehat{mFDR}$ is further assessed via simulation in Section 3.3. 
+The asymptotic normality of the score function for Cox regression (A1) is established in \citet{Andersen1982}, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for Cox regression (A3) can be found in \citet{Fan_scad}.  There are, however, some additional considerations considering censoring with respect to assumption (A2) in Theorem~\ref{Thm:main}.  As discussed earlier, (A2) holds for features that are marginally independent of all other features as well as the outcome.  For (A2) to hold for Cox regression, however, the feature must also be independent of the censoring mechanism.  This additional requirement is needed because when a variable is related to the censoring mechanism, its distribution will drift over time as certain values are disproportionately removed from the risk set, which can induce correlations between variables that would otherwise be uncorrelated. The impact of this additional concern on $\widehat{\mFDR}$ is further assessed via simulation in Section 3.3. 
 
 \section{Simulation studies}
+\label{Sec:sim}
 
 In this section we study the behavior our proposed mFDR upper bound via several simulation studies. In each study we generate $j \in \{1, \ldots, p\}$ variables from standard normal distributions for $i = 1, \ldots, n$ subjects. We consider three different penalized likelihood models: logistic regression, Cox regression, and linear regression, although we concentrate mostly on logistic and Cox regression, as mFDR in the penalized linear regression setting has been previously studied in \citet{BrehenyMFDR}.
 
