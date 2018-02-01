@@ -166,19 +166,23 @@ The asymptotic normality of the score function for Cox regression (A1) is establ
 \section{Simulation studies}
 \label{Sec:sim}
 
-In this section we study the behavior our proposed mFDR upper bound via several simulation studies. In each study we generate $j \in \{1, \ldots, p\}$ variables from standard normal distributions for $i = 1, \ldots, n$ subjects. We consider three different penalized likelihood models: logistic regression, Cox regression, and linear regression, although we concentrate mostly on logistic and Cox regression, as mFDR in the penalized linear regression setting has been previously studied in \citet{BrehenyMFDR}.
+In this section we study the behavior our proposed method for controlling the mFDR via several simulation studies. In each study we generate $j \in \{1, \ldots, p\}$ features from standard normal distributions for $i = 1, \ldots, n$ subjects. We focus on penalized logistic and Cox regression models, although we also carry out some simulations involving normally distributed outcomes in order to compare our results with those in \citet{BrehenyMFDR}.
 
-For logistic regression scenarios, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \exp(\x_i^T \bb)/\{1 + \exp(\x_i^T \bb)\}$. For Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$. And for linear regression scenarios outcomes are generated from the model $y_i = \x_i^T\bb + N(0,\sigma^2)$. Factors including $p$, $n$, and $\bb$, the correlation between variables, and censoring are varied throughout these simulations.
+For logistic regression, binary outcomes are generated from independent Bernoulli distributions with parameter $\pi_i = \exp(\x_i^T \bb)/\{1 + \exp(\x_i^T \bb)\}$. For Cox regression scenarios, survival outcomes are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$. And for linear regression scenarios outcomes are generated from the model $y_i = \x_i^T\bb + N(0,\sigma^2)$. Factors such as $p$, $n$, $\bb$, the correlation between features, and censoring are varied throughout these simulations.
 
-In this section and the next, we compare our proposed mFDR control method with sample splitting and covariance testing.  The covariance testing approach was implemented using the {\tt covTest} package \citep{CovTest} and the \text{forwardStop} function of the \text{SelectiveInference} package \citep{Selective_Inference}; however, the current versions of these packages caution that this approach is considered ``developmental'' for logistic regression and is not currently implemented for Cox regression.  Although software does exist for sample splitting via the {\tt hdi} package, the current version of the package does not offer methods for logistic or Cox regression models, so we manually implemented our own sample splitting approach.
+In this section and the next, we compare our proposed mFDR control method with sample splitting and covariance testing.  The covariance testing approach was implemented using the {\tt covTest} package \citep{CovTest} and the \text{forwardStop} function of the \text{SelectiveInference} package \citep{Selective_Inference}; however, the current versions of these packages caution that this approach is considered ``developmental'' for logistic regression and is not currently implemented for Cox regression.  Although software does exist for sample splitting for linear regression via the {\tt hdi} package \cite{Dezeure2015}, the current version of the package does not offer methods for logistic or Cox regression models, so we manually implemented our own sample splitting approach.
 
 \subsection{Accuracy, sample size, and correlation}
 \label{Sec:accuracy}
 
-Potential conservatism of $\widehat{mFDR}$ arises primarily from two places: first, in the convergence of the score function to its asymptotic distribution, and second, in the convergence of the remainder term to zero. To study the impact of these sources, we varied two factors: sample size, which will impact both of sources of inaccuracy, and correlation between noise variables, which impacts the remainder term. We evaluate accuracy by comparing $\widehat{mFDR}$ with the true mFDR -- i.e., the observed proportion of noise variables -- at each value of a fixed $\lambda$ sequence averaged across 1,000 simulated data sets.
-In this simulation, outcomes were uncensored; the effect of censoring on $\widehat{mFDR}$ is considered in the next section.
+In Section~\ref{Sec:main-results}, the mFDR bound \eqref{eq:mfdr} was shown to be tight in an asymptotic sense provided that condition (A2) was met.  To see how useful this result is in practice, we wish to observe how tight this bound is at finite sample sizes as well as when condition (A2) is violated -- i.e., when noise features are correlated.
+%Potential conservatism of $\widehat{\mFDR}$ arises primarily from two places: first, in the convergence of the score function to its asymptotic distribution, and second, in the convergence of the remainder term to zero.  To study the impact of these sources, we varied two factors: sample size, which will impact both of sources of inaccuracy, and correlation between noise variables, which impacts the remainder term.
+We evaluate the accuracy of the mFDR bound by comparing $\widehat{\mFDR}$ with the true mFDR -- i.e., the empirical proportion of noise features selected -- at each value along a fixed $\lambda$ sequence, averaged across 1,000 simulated data sets.
+In this simulation, time-to-event outcomes were uncensored; the effect of censoring on $\widehat{\mFDR}$ is considered in the next section.
 
-We generate our data using $p = 40$ with $\beta_{1:4} = 10/\sqrt{n}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 in increments of 100. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.  Without this provision, when $n$ is large, all of the true variables are easily selected very early, while false selections are extremely rare until the very end of $\lambda$ sequence, which makes the ``interesting'' region (where the mFDR is not close to 0 or to 1) to be very small.
+We generate our data using $p = 40$ with $\beta_{1:4} = 10/\sqrt{n}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 in increments of 100. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.
+Without this provision, the feature selection problem becomes too easy at large sample sizes and the ``interesting'' region where the mFDR is not close to 0 or to 1 is very small.
+%Without this provision, when $n$ is large, all of the true variables are easily selected very early, while false selections are extremely rare until the very end of $\lambda$ sequence, which makes the ``interesting'' region (where the mFDR is not close to 0 or to 1) to be very small.
 
 In total we assess twelve different scenarios consisting of each possible combination of:
 \begin{itemize}
@@ -186,24 +190,33 @@ In total we assess twelve different scenarios consisting of each possible combin
 \item Three different regression methods: linear regression, logistic regression, and Cox regression
 \item Two different penalties: lasso and MCP. 
 \end{itemize}
-For our correlated setting noise variables are given an autoregressive correlation structure based upon their index such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the mean value of $\widehat{mFDR}$ at the $\lambda$ value where the average observed proportion of noise variables is 10\%.
+For our correlated setting noise variables are given an autoregressive correlation structure based upon their index such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the mean value of $\widehat{\mFDR}$ at the $\lambda$ value where the average observed proportion of noise variables is 10\%.
 
 \begin{figure} [!htb]
  \centering
   \includegraphics[width=.9\textwidth]{ggconverge3.pdf}
-  \caption{Inaccuracy of the mFDR estimator}
+  \caption{Finite-sample accuracy of the mFDR bound \eqref{eq:mfdr}.}
 \end{figure}
 
-$\widehat{mFDR}$ tends to be conservative, in the sense that the true mFDR is noticeably lower than the upper bound provided by $\widehat{mFDR}$, with the degree of conservatism decreasing as the bound becomes tighter as $n$ increases. In the case of independent noise variables $\widehat{mFDR}$ approaches the nominal marginal false discovery rate as $n$ increases. The convergence occurs nearly instantaneously for linear regression, with $\widehat{mFDR}$ being very accurate even at $n=100$, but more slowly for logistic and Cox regression with a slight degree of conservatism remaining even when $n > 500$. The MCP penalty leads to faster convergence and better accuracy than the lasso penalty; this is particularly noticeable in the logistic and Cox regression settings.
+Focusing first on the case of independent noise features, we see that unlike in the linear regression case, where $\widehat{\mFDR}$ is essentially perfect at all sample sizes considered, for logistic and Cox regression $\widehat{\mFDR}$ tends to provide a conservative upper bound at small sample sizes, although this effect does diminish and the bound becomes tighter as $n$ increases.
+Furthermore, the MCP penalty leads to faster convergence and tighter bounds than the lasso penalty; this is particularly noticeable in the logistic and Cox regression settings.
 
-The correlated setting induces a noticeable conservative bias that is cannot be resolved by increasing the sample size. This issue is not unique to mFDR as many methods for controlling false discovery rates also tend to be conservative in correlated settings.  Generally speaking, this conservative nature is not viewed as a significant drawback to false discovery rates, as it still allows one to control the fraction of false discoveries.  Furthermore, in this case, the effect is relatively slight: in many cases $\widehat{mFDR}$ is around 20\% when the true mFDR is 10\%, and nevertheless $\widehat{mFDR}$ clearly identifies the values of $\lam$ for which the true mFDR is low, and where it is high.
+When noise features are correlated, the $\widehat{\mFDR}$ bound is always conservative, at all sample sizes.  In terms of Theorem~\ref{Thm:main}, when noise features are correlated, (A2) is violated because the term $\frac{1}{n}\x_j^T\W\X_{-j}$ does not converge to zero, leaving behind a remainder term that is unaccounted for in \eqref{eq:mfdr}.
+Nevertheless, while this does mean that the bound is less tight, it does not prevent the use of the method for the purposes of mFDR control.
+Furthermore, in this case, the effect is relatively slight: for the most part, $\widehat{\mFDR}$ is approximately 20\% when the true mFDR is 10\%.
+% This issue is not unique to mFDR as many methods for controlling false discovery rates also tend to be conservative in correlated settings.
+%Generally speaking, this conservative nature is not viewed as a significant drawback to false discovery rates, as it still allows one to control the fraction of false discoveries.  
 
 \subsection{Features associated with censoring}
 
-As discussed in Section~\ref{Sec:cox}, the presence of censoring in Cox regression means that, strictly speaking, for Theorem~\ref{Thm:main} to apply, noise features cannot be associated with the censoring mechanism either.  Here, we assess the robustness of $\widehat{mFDR}$ when this condition is violated.
+As discussed in Section~\ref{Sec:cox}, the presence of censoring in Cox regression means that condition (A2) will also be violated if noise features are associated with the censoring mechanism.  Here, we assess the impact such an association has on the $\widehat{mFDR}$.
 
-\begin{table}[b!]
- \caption{Average true mFDR (10,000 simulations) when $\widehat{mFDR}$ is 10\%}
+Consider two scenarios, A and B. In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$, with
+\as{\bg_A &= (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0)}
+for scenario A, while in scenario B all variables are independent of censoring (i.e., $\bg_B = \zero$).  By design, each of these scenarios results, on average, in a censoring rate of 50\%.  The same set of $n = 100$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
+
+\begin{table}[h!]
+ \caption{Average true mFDR (10,000 simulations) when $\widehat{\mFDR}$ is 10\%}
 \centering
 \begin{tabular}{c | c c}
   \hline
@@ -215,35 +228,35 @@ As discussed in Section~\ref{Sec:cox}, the presence of censoring in Cox regressi
 \end{tabular}
 \end{table}
 
-Consider two scenarios, A and B. In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$, and in scenario A four noise variables are related to censoring via
-\as{\bg_A &= (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0),}
-while in scenario B all variables are independent of censoring with $\bg_B = \zero$.  By design, each of these scenarios, on average, results in 50\% of the observations being censored.  The same set of $n = 100$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
+\note{WOULD THIS TABLE LOOK BETTER IF WE USED N=500?}
 
-In scenario A, the association with censoring induces correlation between the noise features and leads to a slightly more conservative mFDR upper bound. The degree of conservatism is quite minor, however, in comparison to the effects of sample size and correlation between noise variables studied in Section~\ref{Sec:accuracy}.
+In scenario A, where several noise features are associated with the censoring mechanism, we see that the bound becomes slightly more conservative than in scenario B, where all assumptions are met.  However, the effect is negligible compared to the considerations described in Section~\ref{Sec:accuracy}.
 
 \subsection{Comparison with other methods}
 \label{Sec:sim-comp}
 
-In this section, we compare our proposed mFDR approach with other methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in Figure~\ref{Fig:diagram}, using $n = 400$ and $p = 1000$ with ten variables are causally related to the outcome, like ``A'', such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each causal variable we generate nine correlated ($\rho = 0.5$) variables, akin to ``B''. The remaining 900 variables are noise, akin to ``C'', however they are correlated with each other such that $Cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR upper bound will be conservative.
+In this section, we compare our proposed mFDR approach with other methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in Figure~\ref{Fig:diagram}, using $n = 400$ and $p = 1000$ with ten variables causally related to the outcome (like ``A''), such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each of these variables, we generate nine correlated ($\rho = 0.5$) variables (akin to ``B''). The remaining 900 variables are noise (akin to ``C''), however they are correlated with each other such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR upper bound will be conservative.
 
-\begin{figure} [b!]
+\begin{figure} [htb!]
  \centering
   \includegraphics[width=0.75\textwidth]{ggpower2.pdf}
-  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$.}
+  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$. \note{WOULD `CAUSAL FEATURES SELECTED' OR `TRUE FEATURES SELECTED' BE A BETTER YLAB?}}
 \end{figure}
 
-We assess the average number of selections for each variable type (``A'', ``B'', ``C'') after applying each of the following methods:
+For each of the following methods, we assess the average number of selections for each variable type (``A'', ``B'', ``C''):
 \begin{itemize}
-\item Our mFDR approach, where variables are selected by the lasso using the smallest $\lambda$ with $\widehat{mFDR} \leq .1$.
-\item A sample splitting approach, motivated by \citet{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit a unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. Here, we limit the first-stage selections to 20 variables so that in the second stage, the model contains 10 events per variable \citep{peduzzi_epv}.
+\item Our mFDR approach, where variables are selected by the lasso using the smallest $\lambda$ with $\widehat{\mFDR} \leq .1$.
+\item A sample splitting approach, motivated by \citet{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit an unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional Wald hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. Here, we limit the first-stage selections to 20 variables so that in the second stage, the model contains 10 events per variable \citep{peduzzi_epv}.
 \item The covariance testing approach \citep{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the pathwise false discovery rate at $10\%$. 
-\item A large scale univariate testing approach which fits an unpenalized regression model to each variable individually, conducts a hypothesis test on the variable coefficient, and then adjusts the resulting p-values using the Benjamini-Hochberg procedure to control the false discovery rate at $10\%$.
+\item A large scale univariate testing approach which fits separate, unpenalized regression models to each variable individually, and then adjusts the resulting p-values using the Benjamini-Hochberg procedure to control the false discovery rate at $10\%$.
 \item A lasso approach which uses 10-fold cross validation (CV) to select the $\lambda$ and makes no attempt to control the false discovery rate.
 \end{itemize}
 
-The results of this simulation are shown in Figure~\ref{Fig:lassopower}.  Compared to other false discovery rate control methods for penalized regression, the mFDR approach selects more causally important variables at every value of $b$. The covariance testing approach in particular selects far fewer causal features in the logistic regression setting than either mFDR or sample splitting, although as previously noted, despite being available in the {\tt CovTest} R package, the covariance test for logistic regression is currently considered to be experimental by the package creators.  The covariance test is not shown for Cox regression as this has not yet been implemented in the package.
+\note{NOTE TO SELF: STOPPED HERE}
 
-\begin{figure} [!htb]
+The comparison of FDR control procedures for the lasso (mFDR, sample splitting, and covariance testing) is shown in Figure~\ref{Fig:lassopower}.  Compared to other false discovery rate control methods for penalized regression, the mFDR approach selects more causally important variables at every value of $b$. The covariance testing approach in particular selects far fewer causal features in the logistic regression setting than either mFDR or sample splitting, although as previously noted, despite being available in the {\tt CovTest} R package, the covariance test for logistic regression is currently considered to be experimental by the package creators.  The covariance test is not shown for Cox regression as this has not yet been implemented in the package.
+
+\begin{figure} [!ht]
  \centering
   \includegraphics[width=0.75\textwidth]{ggcv.pdf}
   \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram} is plotted for cross validation as function of $\beta$.}
