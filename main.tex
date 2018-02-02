@@ -298,7 +298,7 @@ Indeed, for the univariate approach, the rate of true variable selections per no
 
 \subsection{Lung cancer survival and gene expression}
 
-\citet{Shedden2008} studied the survival of 442 early-stage lung cancer subjects. Researchers collected high-dimensional gene expression data consisting of 22,283 genes and additional clinical covariates of age, race, gender, smoking history, cancer grade, and whether or not the subject received adjuvent chemotherapy.  The retrospective study used time to death as its outcome, which was observed in 236 (53.3\%) of the subjects, the remainder being right censored.
+\citet{Shedden2008} studied the survival of 442 early-stage lung cancer subjects. Researchers collected high-dimensional gene expression data consisting of 22,283 genes and additional clinical covariates of age, race, gender, smoking history, cancer grade, and whether or not the subject received adjuvant chemotherapy.  The retrospective study used time to death as its outcome, which was observed in 236 (53.3\%) of the subjects, the remainder being right censored.
 
 In our analysis we aim to select important genes while controlling the marginal false discovery rate.  We use a penalized Cox proportional hazards regression model that allows for all of the clinical covariates to enter the model unpenalized while using the sparsity introduced by penalization to screen for additional genes related to survival.  We aim to limit the mFDR to 10\% and compare our results to those of other methods.
 
