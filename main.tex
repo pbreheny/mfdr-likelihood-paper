@@ -240,31 +240,31 @@ In this section, we compare our proposed mFDR approach with other methods of var
 \begin{figure} [htb!]
  \centering
   \includegraphics[width=0.75\textwidth]{ggpower2.pdf}
-  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$. \note{WOULD `CAUSAL FEATURES SELECTED' OR `TRUE FEATURES SELECTED' BE A BETTER YLAB?}}
+  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$. \note{Kind of thinking we should have better labels here.  How about ``Signal strength (b)'' and ``Causal features selected'' or ``True features selected''?  And would it be better to write out ``Sample splitting'' instead of ``SS''}}
 \end{figure}
 
-For each of the following methods, we assess the average number of selections for each variable type (``A'', ``B'', ``C''):
+For each of the following methods, we assess the average number of selections for each variable type:
 \begin{itemize}
 \item Our mFDR approach, where variables are selected by the lasso using the smallest $\lambda$ with $\widehat{\mFDR} \leq .1$.
-\item A sample splitting approach, motivated by \citet{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit an unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional Wald hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. Here, we limit the first-stage selections to 20 variables so that in the second stage, the model contains 10 events per variable \citep{peduzzi_epv}.
-\item The covariance testing approach \citep{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the pathwise false discovery rate at $10\%$. 
-\item A large scale univariate testing approach which fits separate, unpenalized regression models to each variable individually, and then adjusts the resulting p-values using the Benjamini-Hochberg procedure to control the false discovery rate at $10\%$.
-\item A lasso approach which uses 10-fold cross validation (CV) to select the $\lambda$ and makes no attempt to control the false discovery rate.
+\item Sample splitting \citep{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit an unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional Wald hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. Here, we limit the first-stage selections to 20 variables so that in the second stage, the model contains 10 events per variable \citep{peduzzi_epv}.
+\item Covariance testing \citep{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the pathwise false discovery rate at $10\%$. 
+\item Univariate testing, where we fit separate, unpenalized regression models to each variable individually, and then adjust the resulting p-values using the Benjamini-Hochberg procedure to control the false discovery rate at $10\%$.
+\item Cross-validation (CV), where 10-fold CV is used to choose $\lam$ for the lasso model; note that this approach makes no attempt to control the false discovery rate.
 \end{itemize}
 
-\note{NOTE TO SELF: STOPPED HERE}
-
-The comparison of FDR control procedures for the lasso (mFDR, sample splitting, and covariance testing) is shown in Figure~\ref{Fig:lassopower}.  Compared to other false discovery rate control methods for penalized regression, the mFDR approach selects more causally important variables at every value of $b$. The covariance testing approach in particular selects far fewer causal features in the logistic regression setting than either mFDR or sample splitting, although as previously noted, despite being available in the {\tt CovTest} R package, the covariance test for logistic regression is currently considered to be experimental by the package creators.  The covariance test is not shown for Cox regression as this has not yet been implemented in the package.
+The comparison of FDR control procedures for the lasso (mFDR, sample splitting, and covariance testing) is shown in Figure~\ref{Fig:lassopower}.  Compared to other false discovery rate control methods for penalized regression, the mFDR approach is more powerful -- at the same nominal FDR, the marginal approach selects more causally important variables at each signal strength.  This is not a surprising result: a primary motivation of the marginal approach is that, by adopting a less restrictive definition of false discovery, we could improve power.  The covariance testing approach in particular is particularly conservative in the logistic regression setting, selecting far fewer causal features than either mFDR or sample splitting.  As of the time of this writing, the covariance test has not been extended to Cox regression and is therefore not shown in the left panel of Figure~\ref{Fig:lassopower}.
 
 \begin{figure} [!ht]
  \centering
   \includegraphics[width=0.75\textwidth]{ggcv.pdf}
-  \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram} is plotted for cross validation as function of $\beta$.}
+  \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram}, when cross-validation is used to select $\lam$.}
 \end{figure}
 
-%% NOTE: Clarification here, 80%, 10% -- how are B variables being counted? -- Considering B vars are valid selections, changed text to 75% (~60 C sels/~80 total sels)
+Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As the figure shows, while cross-validation has excellent sensitivity, selecting nearly all the causal (``A'') variables even at low signal strength, it does not control the number of false selections.  In fact, at all levels of $b$, the majority of the features in the CV-selected model are noise features.  This problem becomes increasingly worse as the signal strength increases.  For example, at $b=0.8$, over 70\% of the features in the CV model are noise features.  In contrast, as may be seen in Figure~\ref{Fig:univariate}, the vast majority of the features selected by the mFDR control approach are causally related to the outcome.
 
-Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As the figure shows, while cross-validation tends to select nearly all the ``A'' variables, it does not control number of false selections.  In fact, it selects an increasingly large number of noise variables as the signal strength $b$ increases. Whereas sample splitting, covariance testing, and mFDR all resulted in false discovery rates well under 10\% throughout our simulations, as many as $75\%$ of the selections made by cross validation were noise variables for larger values of $\beta$.
+Figure~\ref{Fig:univariate} compares the mFDR and univariate approaches, both of which are designed to control the proportion of marginal false discoveries without making any claims regarding features indirectly associated with the outcome. The top panels show that the two methods are comparable in terms of their ability to select the true causal variables.  The advantage of using a regression-based approach over univariate testing, however, is clearly seen when looking at the number of other selections.  Lasso with mFDR control greatly reduces the number of correlated (``B'') selections compared to univariate testing: whereas univariate testing tends to identify dozens of indirectly associated features as discoveries, lasso with mFDR control tends to select at most two.
+
+The mFDR control approach also selects far fewer noise (``C'') variables than univariate testing.  The reason for this is that the large number of ``B'' features selected by univariate testing allow it to select a much larger number of features while maintaining the overall FDR at 10\%.
 
 \begin{figure} [!htb]
  \centering
@@ -272,18 +272,15 @@ Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As th
   \caption{\label{Fig:univariate} The average number of selections, for each type of variable depicted in Figure~\ref{Fig:diagram}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
 \end{figure}
 
-Figure~\ref{Fig:univariate} compares the mFDR and univariate approaches, both of which are designed to control the proportion of marginal false discoveries without making any claims pertaining to correlated, ``B'', variables. The top panels show that the two methods are comparable in terms of their ability to select the true causal variables.  The advantage of using a regression-based approach over univariate testing, however, is clearly seen when looking at the number of other selections.  Lasso with mFDR control greatly reduces the number of correlated (``B'') selections compared to univariate testing: whereas univariate testing tends to identify dozens of indirectly associated features as discoveries, lasso with mFDR control tends to select at most two.
+For this reason, Figure~\ref{Fig:univariate} is potentially somewhat misleading in terms of comparing mFDR and univariate testing in terms of their power to identify type ``A'' features.
+Table~\ref{Tab:univariate} presents an alternative metric for comparing the univariate and mFDR approaches.  Given the large difference between the two approaches with respect to number of indirectly associated (``B'') features selected, the table presents the ratio of the number of causally associated features to the number of noise features -- i.e., the A:C ratio -- for various values of $\beta$.  Whereas Figure~\ref{Fig:univariate} suggests that the two approaches were approximately equally effective at identifying the truly important variables, Table~\ref{Tab:univariate} shows that the lasso-mFDR approach is far more powerful in terms of the number of true discoveries per noise feature selected.
 
-In Figure~\ref{Fig:univariate}, mFDR also selects far fewer noise (``C'') variables than univariate testing.  The reason for this is that the large number of ``B'' features selected by univariate testing allows it to select many more ``A'' and ``C'' features while maintaining the overall FDR at a level less than 10\%.  For this reason, Figure~\ref{Fig:univariate} is potentially somewhat misleading in terms of comparing mFDR and univariate testing in terms of their power to identify type ``A'' features.
-
-Table~\ref{Tab:univariate} presents an alternative metric for comparing the univariate and mFDR approaches.  Given the overwhelming difference between the two approaches with respect to type ``B'' features, the table presents the ratio of the number of causally associated features to the number of noise features -- i.e., the A:C ratio -- for various values of $\beta$.  Whereas Figure~\ref{Fig:univariate} indicated that the two approaches were approximately equally effective at identifying the truly important variables, Table~\ref{Tab:univariate} shows that the lasso-mFDR approach was far more powerful as measured by comparing the number of true discoveries to the number of false discoveries.
-
-\begin{table}[b!]
+\begin{table}[ht!]
 \centering
 \begin{tabular}{c | r r r r}
   \hline
   & \multicolumn{2}{c}{Cox} & \multicolumn{2}{c}{Logistic}\\
- $\beta$ & Univariate & Lasso-mFDR & Univariate & Lasso-mFDR \\ 
+ $b$ & Univariate & Lasso-mFDR & Univariate & Lasso-mFDR \\ 
   \hline
   0.25 & 3.5 & 17.7 & 2.3 & 3.3 \\ 
   0.35 & 3.0 & 36.2 & 4.9 & 11.1 \\ 
@@ -292,10 +289,10 @@ Table~\ref{Tab:univariate} presents an alternative metric for comparing the univ
   0.75 & 1.9 & 750.0 & 4.1 & 47.6 \\ 
    \hline
 \end{tabular}
-\caption{\label{Tab:univariate} The ratio of A:C variable selections for various values of $\beta$.}
+\caption{\label{Tab:univariate} The ratio of A:C variable selections for various values of the signal strength $b$.}
 \end{table}
 
-Indeed, for the univariate approach, the rate of true variable selections per noise variable selection is not only low, but in fact decreases as $\beta$ increases. In contrast, with the mFDR approach, the true variable to noise variable selection rate increases with $\beta$ as one would hope.
+Indeed, for the univariate approach, the rate of true variable selections per noise variable selection is not only low, but in fact decreases as the signal strength increases. In contrast, with the mFDR approach, the causal:noise selection ratio increases with signal strength, as one would hope.
 
 \section{Case studies}
 
