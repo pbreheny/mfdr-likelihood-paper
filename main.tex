@@ -9,7 +9,7 @@ A fundamental challenge of inference under variable selection is how to account 
 
 One approach, which we refer to as {\em sample splitting}, is based upon dividing the data into two parts, using the first part for variable selection and the second part for inference. \citet{Sample_Splitting} first proposed this approach using single split, and \citet{Meinshausen2009} extended it by considering multiple random splits.  More recently, \citet{CovTest} and \citet{Selective_Inference} have proposed a family of methods known as {\em selective inference}, which test the significance of each variable selection along the lasso solution path as $\lambda$ is decreased, conditional upon the other variables already active in the model. Based on this sequence of tests, formal stopping rules can be derived in order to control the false discovery rate at a specified level \citep{GSell2016}.
 
-These approaches, however, suffer from two primary drawbacks.  First, they are very restrictive, in the sense that they often unable to select more than one or two features, even at high false discovery rates.  This is especially true in high dimensions.  Second, they are quite computationally intensive.  For both approaches, it typically takes several orders of magnitude longer to estimate the false discovery rate than to fit the model in first place.
+These approaches, however, suffer from two primary drawbacks.  First, they are very restrictive, in the sense that they are often unable to select more than one or two features, even at high false discovery rates.  This is especially true in high dimensions.  Second, they are quite computationally intensive.  For both approaches, it typically takes several orders of magnitude longer to estimate the false discovery rate than to fit the model in first place.
 
 To address both of these drawbacks, \citet{BrehenyMFDR} proposed controlling the marginal false discovery rate (mFDR), and showed that focusing only on this weaker definition of false discovery yields a method that is less restrictive and far less computationally intensive than approaches for controlling conditional FDRs.  \citet{BrehenyMFDR} considered only the case of linear regression models.  Here, we extend that work to the more general class of regression models based on likelihood; in particular, this class includes generalized linear models and Cox proportional hazards models.  We compare these newly developed methods to sample splitting and selective inference using simulated data and apply our approach to two case studies involving high-dimensional data, one with a time-to-event outcome and the other with a binary outcome, to demonstrate the practical utility of our method on real data.
 
@@ -213,7 +213,7 @@ As discussed in Section~\ref{Sec:cox}, the presence of censoring in Cox regressi
 
 Consider two scenarios, A and B. In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$, with
 \as{\bg_A &= (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0)}
-for scenario A, while in scenario B all variables are independent of censoring (i.e., $\bg_B = \zero$).  By design, each of these scenarios results, on average, in a censoring rate of 50\%.  The same set of $n = 100$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
+for scenario A, while in scenario B all variables are independent of censoring (i.e., $\bg_B = \zero$).  By design, each of these scenarios results, on average, in a censoring rate of 50\%.  The same set of $n = 300$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
 
 \begin{table}[h!]
  \caption{Average true mFDR (10,000 simulations) when $\widehat{\mFDR}$ is 10\%}
@@ -228,7 +228,7 @@ for scenario A, while in scenario B all variables are independent of censoring (
 \end{tabular}
 \end{table}
 
-\note{WOULD THIS TABLE LOOK BETTER IF WE USED N=500?}
+%\note{WOULD THIS TABLE LOOK BETTER IF WE USED N=500?}
 
 In scenario A, where several noise features are associated with the censoring mechanism, we see that the bound becomes slightly more conservative than in scenario B, where all assumptions are met.  However, the effect is negligible compared to the considerations described in Section~\ref{Sec:accuracy}.
 
@@ -239,9 +239,11 @@ In this section, we compare our proposed mFDR approach with other methods of var
 
 \begin{figure} [htb!]
  \centering
-  \includegraphics[width=0.75\textwidth]{ggpower2.pdf}
-  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$. \note{Kind of thinking we should have better labels here.  How about ``Signal strength (b)'' and ``Causal features selected'' or ``True features selected''?  And would it be better to write out ``Sample splitting'' instead of ``SS''}}
+  \includegraphics[width=0.75\textwidth]{fig3.pdf}
+  \caption{\label{Fig:lassopower} The number of true, ``A", variables selected by each lasso based method of false discovery rate control, averaged across 1,000 simulation iterations plotted as a function of $\beta$.}
 \end{figure}
+
+ %\note{Kind of thinking we should have better labels here.  How about ``Signal strength (b)'' and ``Causal features selected'' or ``True features selected''?  And would it be better to write out ``Sample splitting'' instead of ``SS''}
 
 For each of the following methods, we assess the average number of selections for each variable type:
 \begin{itemize}
@@ -256,7 +258,7 @@ The comparison of FDR control procedures for the lasso (mFDR, sample splitting, 
 
 \begin{figure} [!ht]
  \centering
-  \includegraphics[width=0.75\textwidth]{ggcv.pdf}
+  \includegraphics[width=0.75\textwidth]{fig4.pdf}
   \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram}, when cross-validation is used to select $\lam$.}
 \end{figure}
 
@@ -268,7 +270,7 @@ The mFDR control approach also selects far fewer noise (``C'') variables than un
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[width=0.8\textwidth]{ggunivariate2.pdf}
+  \includegraphics[width=0.8\textwidth]{fig5.pdf}
   \caption{\label{Fig:univariate} The average number of selections, for each type of variable depicted in Figure~\ref{Fig:diagram}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
 \end{figure}
 
