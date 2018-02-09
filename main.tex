@@ -19,6 +19,7 @@ False discoveries are straightforward to define when conducting single variable 
 
 \begin{figure}[!htb]
 \centering
+%\begin{center}
 \begin{tikzpicture}[node distance=1cm]
 
 % nodes %
@@ -33,6 +34,7 @@ False discoveries are straightforward to define when conducting single variable 
 \draw [arrow] (a) -- (y);
 
 \end{tikzpicture} \\
+%\end{center}
 \caption{\label{Fig:diagram} Causal diagram showing three types of relationships between variables and the outcome.}
 \end{figure}
 
@@ -48,7 +50,6 @@ Consider data of the usual form $(\y, \X)$, where $\y$ denotes the response for 
 
 The explanatory variables in $\X$ are related to $\y$ through a probability model involving coefficients $\bb$.  The fit of the model to the data can be summarized using the log-likelihood, which we denote $\ell(\bb|X,\y)$.  In the classical setting, $\bb$ is estimated by maximizing $l(\bb|X,\y)$.  However, this approach is unstable in high dimensions unless an appropriate penalty, denoted $P_{\lambda}(\bb)$, is imposed on the size of $\bb$.
 In this case, $\bbh$ is found by minimizing the objective function
-
 \al{eq:obj}{
   Q(\bb|X,\y) =  -\frac{1}{n} \ell(\bb|X,\y) + P_{\lambda} (\bb).
 }
@@ -82,11 +83,11 @@ $\W$ to denote this matrix evaluated at the true value of $\bb$ and $\widehat{\W
 if evaluated at the lasso estimate.  In addition, we let $v_j=\x_j^T\W\x_j$,
 with $\hat{v}_j$ defined similarly.
 
-\begin{itemize}
-\item (A1) Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
-\item (A2) Vanishing correlation: $\frac{1}{n}\x_j^T\W\X_{-j} \inP \zero$.
-\item (A3) Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability.
-\end{itemize}
+\begin{description}[labelindent=0.5cm, leftmargin=*]
+\item [(A1)] Asymptotic normality of the score function: $(\X^T\W\X)^{-1/2}\u(\bb) \inD N(\zero,  \I)$, where $\I$ denotes the $p \times p$ identity matrix.
+\item [(A2)] Vanishing correlation: $\frac{1}{n}\x_j^T\W\X_{-j} \inP \zero$.
+\item [(A3)] Estimation consistency: $\sqrt{n}(\bbh-  \bb)$ is bounded in probability.
+\end{description}
 
 (A1) is a standard result of classical likelihood theory and can be shown for many types of models.  (A3) is not a trivial condition, but has been studied and shown to hold for various models and various types of penalties under certain conditions.  (A2), on the other hand, is unlikely to be truly satisfied by most features in practice.
 Our theoretical results illustrate what is required for the proposal to work perfectly in the sense of providing a consistent estimate for the mFDR.
@@ -117,7 +118,7 @@ Since $\beta_j=0$, we then have
 \intertext{or}
 \tfrac{u_j(\bbh) + v_j \bh_j}{\sqrt{v_j}}  &= \tfrac{u_j(\bb)}{\sqrt{v_j}} - \sqrt{\tfrac{n}{v_j}}[\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{\tfrac{n}{v_j}}\sqrt{n}\bh_j.}
 %\tfrac{1}{\sqrt{n}}u_j(\bbh) + \sqrt{n}v_j\bh_j &= \tfrac{1}{\sqrt{n}}u_j(\bb) - [\tfrac{1}{n}\x_j^T\W\X_{-j}][\sqrt{n}(\bbh_{-j} - \bb_{-j})] + o_p(1)\sqrt{n}\bh_j.}
-Noting that $v_j/n=O(1)$, the first term on the right side of the equation converges to $N(0,1)$ by (A1); the second term goes to zero by conditions (A2) and (A3); and the third term also goes to zero by (A3).
+Noting that $v_j/n=O(1)$, the first term on the right side of the equation converges to $N(0,1)$ by (A1); the second term goes to zero by conditions (A2) and (A3); and the third term also goes to zero by (A3).\hfill$\square$
 \end{proof}
 
 Theorem~\ref{Thm:main} therefore implies that the probability that feature $j$ is selected, given that it is marginally independent of the outcome, is approximately the probability that a random variable following a $N(0, v_j/n^2)$ distribution exceeds $\lam$ in absolute value.
@@ -145,7 +146,7 @@ It is worth noting here that MCP and SCAD differ from the the lasso by relaxing 
 
 So far we have presented our results in the general setting of penalized likelihood optimization. One specific type of model to which Section~\ref{Sec:main-results} applies is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
 
-The asymptotic normality of the score function for logistic regression (A1) is established in \citet{McCullagh1989}, among other places, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for logistic regression (A3) can be found in \citet{SCAD}.
+The asymptotic normality of the score function for logistic regression (A1) can be found in, e.g., \citet{McCullagh1989}, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for logistic regression (A3) are established in \citet{SCAD}.
 
 \subsection{Cox regression}
 \label{Sec:cox}
@@ -185,7 +186,7 @@ Without this provision, the feature selection problem becomes too easy at large 
 %Without this provision, when $n$ is large, all of the true variables are easily selected very early, while false selections are extremely rare until the very end of $\lambda$ sequence, which makes the ``interesting'' region (where the mFDR is not close to 0 or to 1) to be very small.
 
 In total we assess twelve different scenarios consisting of each possible combination of:
-\begin{itemize}
+\begin{itemize}[leftmargin=*, labelindent=0.5cm]
 \item Two different correlation structures: independent noise variables and correlated noise variables
 \item Three different regression methods: linear regression, logistic regression, and Cox regression
 \item Two different penalties: lasso and MCP. 
@@ -246,7 +247,7 @@ In this section, we compare our proposed mFDR approach with other methods of var
  %\note{Kind of thinking we should have better labels here.  How about ``Signal strength (b)'' and ``Causal features selected'' or ``True features selected''?  And would it be better to write out ``Sample splitting'' instead of ``SS''}
 
 For each of the following methods, we assess the average number of selections for each variable type:
-\begin{itemize}
+\begin{itemize}[labelindent=0.5cm, leftmargin=*]
 \item Our mFDR approach, where variables are selected by the lasso using the smallest $\lambda$ with $\widehat{\mFDR} \leq .1$.
 \item Sample splitting \citep{Sample_Splitting}, where we first fit a lasso regression model on half of the data to select the top 20 variables. We then use the remaining data to fit an unpenalized regression model on the variables selected in the first stage. With the unpenalized model we conduct traditional Wald hypothesis tests on the regression coefficients and apply the Benjamini-Hochberg procedure \citep{BH_1995} to control the false discovery rate at $10\%$. Here, we limit the first-stage selections to 20 variables so that in the second stage, the model contains 10 events per variable \citep{peduzzi_epv}.
 \item Covariance testing \citep{CovTest}, which we use in conjunction with the forward stopping rules proposed by \citet{GSell2016} to control the pathwise false discovery rate at $10\%$. 
@@ -279,6 +280,7 @@ Table~\ref{Tab:univariate} presents an alternative metric for comparing the univ
 
 \begin{table}[ht!]
 \centering
+\caption{\label{Tab:univariate} The ratio of Causal:Noise (A:C) feature selections for various values of the signal strength $b$.}
 \begin{tabular}{c | r r r r}
   \hline
   & \multicolumn{2}{c}{Cox} & \multicolumn{2}{c}{Logistic}\\
@@ -291,7 +293,6 @@ Table~\ref{Tab:univariate} presents an alternative metric for comparing the univ
   0.75 & 1.9 & 750.0 & 4.1 & 47.6 \\ 
    \hline
 \end{tabular}
-\caption{\label{Tab:univariate} The ratio of Causal:Noise (A:C) feature selections for various values of the signal strength $b$.}
 \end{table}
 
 Indeed, for the univariate approach, the rate of true variable selections per noise variable selection is not only low, but in fact decreases as the signal strength increases. In contrast, with the mFDR approach, the causal:noise selection ratio increases with signal strength, as one would hope.
@@ -314,6 +315,7 @@ Figure~\ref{Fig:Shedden} illustrates the mFDR estimates for this study.  On the 
 
 \begin{table}[htb!]
 \centering
+\caption{\label{Tab:shedden} Results comparing different $\lambda$ choices, along the default sequence generated by {\tt ncvreg}, using the lasso and MCP penalties on the Shedden data }
 \begin{tabular}{c | r r r r r }
   \hline
 lasso & $\lambda$ & EF & S & mFDR & cross validation error \\ 
@@ -329,7 +331,6 @@ MCP & $\lambda$ & EF & S & mFDR  & CV error \\
 	mFDR & 0.155 & 0.16 & 2 & 8.2\% &  1315.1 \\
 		\hline
 \end{tabular}
-\caption{\label{Tab:shedden} Results comparing different $\lambda$ choices, along the default sequence generated by {\tt ncvreg}, using the lasso and MCP penalties on the Shedden data }
 \end{table}
 
 Table~\ref{Tab:shedden} displays results for three potential approaches to choosing $\lam$: the value that minimizes cross-validation error (CV), the value that comes within 1 standard error (SE) of minimizing CV (1se), and the smallest value of $\lam$ satisfying $\mFDR < 10\%$.
@@ -352,6 +353,7 @@ The goal of the study was to identify genes that are indicative of whether or no
 
 \begin{table}[htb!]
 \centering
+\caption{\label{Tab:spira} Results comparing different approaches to selecting $\lam$ for the Spira data.}
 \begin{tabular}{c | r r r r r r }
   \hline
 lasso & $\lambda$ & EF & S & mFDR & misclassification error & cross validation error \\ 
@@ -367,7 +369,6 @@ MCP & $\lambda$ & EF & S & mFDR & misclassification error & cross validation err
 	mFDR & 0.1508 & 0.42 & 5 & 8.4\% &  33.9\% & 1.306 \\
 		\hline
 \end{tabular}
-\caption{\label{Tab:spira} Results comparing different approaches to selecting $\lam$ for the Spira data.}
 \end{table}
 
 Table~\ref{Tab:spira} shows results for the Spira data at various $\lambda$ values for the lasso and MCP penalty functions.  In contrast with the Shedden case study, for both penalties in this example the mFDR bound is 100\% at the value of $\lam$ selected by cross validation.  In other words, we are unable to provide an upper bound for the mFDR at the value of $\lam$, and one should be cautious about interpreting the selected features as significant.  For example, at $\lam=0.0294$, there may very well be some true discoveries among the 49 selected features, but a lasso-penalized logistic regression model could easily select 49 features just by chance at that value of $\lam$ even if none of them were related to the outcome.
