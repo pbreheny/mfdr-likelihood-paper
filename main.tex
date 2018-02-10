@@ -14,12 +14,13 @@ These approaches, however, suffer from two primary drawbacks.  First, they are v
 To address both of these drawbacks, \citet{BrehenyMFDR} proposed controlling the marginal false discovery rate (mFDR), and showed that focusing only on this weaker definition of false discovery yields a method that is less restrictive and far less computationally intensive than approaches for controlling conditional FDRs.  \citet{BrehenyMFDR} considered only the case of linear regression models.  Here, we extend that work to the more general class of regression models based on likelihood; in particular, this class includes generalized linear models and Cox proportional hazards models.  We compare these newly developed methods to sample splitting and selective inference using simulated data and apply our approach to two case studies involving high-dimensional data, one with a time-to-event outcome and the other with a binary outcome, to demonstrate the practical utility of our method on real data.
 
 \section{Marginal false discovery rates}
+\label{Sec:mfdr}
 
 False discoveries are straightforward to define when conducting single variable hypothesis tests; a false discovery occurs when a feature $X_j$ is declared to be associated with an outcome $Y$ even though the feature is actually independent of the outcome: $X_j \independent Y$. In the regression framework, where many variables are being considered simultaneously, the idea of a false discovery is more complicated. The most common approach, which we refer to as the \textit{fully conditional} perspective, is to consider a feature $X_j$ to be a false discovery if it is independent of the outcome conditional upon all other features: $X_j \independent Y | X_{k \neq j}$. Penalized likelihood methods typically result in only a subset of the available variables being active in the model, thereby motivating the \textit{pathwise conditional} perspective.  This perspective focuses on the model where $X_j$ first becomes active and conditions only on the other variables present in the model (denote this set $M_j$) at that time when assessing whether or not variable $j$ is a false discovery: $X_j \independent Y | X_k \text{ for } k \in M_j$.
 
-\begin{figure}[!htb]
-\centering
-%\begin{center}
+%\begin{figure}[!htb]
+%\centering
+\begin{center}
 \begin{tikzpicture}[node distance=1cm]
 
 % nodes %
@@ -34,11 +35,11 @@ False discoveries are straightforward to define when conducting single variable 
 \draw [arrow] (a) -- (y);
 
 \end{tikzpicture} \\
-%\end{center}
-\caption{\label{Fig:diagram} Causal diagram showing three types of relationships between variables and the outcome.}
-\end{figure}
+\end{center}
+%\caption{\label{Fig:diagram} Causal diagram showing three types of relationships between variables and the outcome.}
+%\end{figure}
 
-In this paper we derive our method under the less restrictive \textit{marginal false discovery} definition \citep{BrehenyMFDR}, which we illustrate using the causal diagram depicted in Figure~\ref{Fig:diagram}. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
+In this paper we derive our method under the less restrictive \textit{marginal false discovery} definition \citep{BrehenyMFDR}, which we illustrate using the causal diagram depicted above. In this diagram variable $A$ has a direct causal relationship with the outcome variable $Y$ and should never be considered a false discovery. Variable $C$ is independent of variable $Y$ regardless of any variables we adjust for and should always be considered a false discovery. 
 
 Variable $B$, on the other hand, is a more subtle case: $B$ is is correlated with $Y$, but after adjusting for $A$, $B$ and $Y$ are independent. Depending upon the perspective taken, $B$ might or might not be considered a false discovery. In a fully conditional approach, $B$ is considered a false discovery.  In a pathwise approach, whether $B$ is a false discovery or not depends on whether $A$ is active in the model.
 
@@ -99,7 +100,7 @@ The fundamental reason for this is that if a pool of noise features are uncorrel
 Assumptions (A1)-(A3) are further discussed in the specific cases of logistic and Cox regression later in this section.
 
 We now formally state our main theoretical result.  In interpreting this result, it is important to keep in mind that only features that are marginally independent of the outcome will satisfy both assumption (A2) and $\beta_j=0$.
-In other words, the theorem applies to variables like $C$ in Figure~\ref{Fig:diagram}, but not variable $B$: although the regression coefficient for $B$ is zero, its correlation with $A$ violates (A2).
+In other words, the theorem applies to variables like $C$ in the causal diagram of Section~\ref{Sec:mfdr}, but not variable $B$: although the regression coefficient for $B$ is zero, its correlation with $A$ violates (A2).
 
 \begin{theorem}
   \label{Thm:main}
@@ -196,7 +197,7 @@ For our correlated setting noise variables are given an autoregressive correlati
 \begin{figure} [!htb]
  \centering
   \includegraphics[width=.9\textwidth]{ggconverge3.pdf}
-  \caption{Finite-sample accuracy of the mFDR bound \eqref{eq:mfdr}.}
+  \caption{\label{Fig:converge}Finite-sample accuracy of the mFDR bound \eqref{eq:mfdr}.}
 \end{figure}
 
 Focusing first on the case of independent noise features, we see that unlike in the linear regression case, where $\widehat{\mFDR}$ is essentially perfect at all sample sizes considered, for logistic and Cox regression $\widehat{\mFDR}$ tends to provide a conservative upper bound at small sample sizes, although this effect does diminish and the bound becomes tighter as $n$ increases.
@@ -213,30 +214,30 @@ Furthermore, in this case, the effect is relatively slight: for the most part, $
 As discussed in Section~\ref{Sec:cox}, the presence of censoring in Cox regression means that condition (A2) will also be violated if noise features are associated with the censoring mechanism.  Here, we assess the impact such an association has on the $\widehat{mFDR}$.
 
 Consider two scenarios, A and B. In each scenario censoring times are generated from exponential distributions with $\theta_{i} = \exp(\x_i^T \bg)$, with
-\as{\bg_A &= (0, 0, 0, 0, 1, -1, 1, -1, 0, \ldots, 0)}
-for scenario A, while in scenario B all variables are independent of censoring (i.e., $\bg_B = \zero$).  By design, each of these scenarios results, on average, in a censoring rate of 50\%.  The same set of $n = 300$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = 1$ and $\beta_{5:40} = 0$.
+\as{\bg_A &= (0, 0, 0, 0, .45, -.45, .45, -.45, 0, \ldots, 0)}
+for scenario A, while in scenario B all variables are independent of censoring (i.e., $\bg_B = \zero$).  By design, each of these scenarios results, on average, in a censoring rate of 50\%.  The same set of $n = 500$ true failure times is used for both scenarios and are generated from independent exponential distributions with rate parameter $\theta_i = \exp(\x_i^T \bb)$, where $\beta_{1:4} = .45$ and $\beta_{5:40} = 0$.  The value 0.45, used in $\bg$ and $\bb$, is approximately $10/\sqrt{n}$ for this scenario, and is used so that the results of this simulation are comparable with those displayed in Figure~\ref{Fig:converge}.
 
-\begin{table}[h!]
- \caption{Average true mFDR (10,000 simulations) when $\widehat{\mFDR}$ is 10\%}
-\centering
-\begin{tabular}{c | c c}
-  \hline
- Scenario & lasso & MCP   \\  [0.5ex]
-  \hline 
-   A & 1.02\% & 6.72\% \\ 
-   B &  1.33\% & 7.31\% \\ 
-   \hline
-\end{tabular}
-\end{table}
+%\begin{table}[h!]
+% \caption{Average true mFDR (10,000 simulations) when $\widehat{\mFDR}$ is 10\%}
+%\centering
+%\begin{tabular}{c | c c}
+%  \hline
+% Scenario & lasso & MCP   \\  [0.5ex]
+%  \hline 
+%   A & 1.02\% & 6.72\% \\ 
+%   B &  1.33\% & 7.31\% \\ 
+%   \hline
+%\end{tabular}
+%\end{table}
 
 %\note{WOULD THIS TABLE LOOK BETTER IF WE USED N=500?}
 
-In scenario A, where several noise features are associated with the censoring mechanism, we see that the bound becomes slightly more conservative than in scenario B, where all assumptions are met.  However, the effect is negligible compared to the considerations described in Section~\ref{Sec:accuracy}.
+In scenario A, several noise features are associated with the censoring mechanism.  Here, when $\widehat{\mFDR}$ is 10\%, the observed false discovery rate averaged across 1,000 simulations is 4.03\% using the lasso penalty and 6.31\% using MCP.  In scenario B, where all censoring assumptions are met, the observed false discovery rates are 5.01\% and 6.85\% for the lasso and MCP respectively.  These results demonstrate that noise variable associations with the censoring mechanism will lead to a more conservative upper bound.  However, the effect is negligible compared to the considerations described in Section~\ref{Sec:accuracy}.
 
 \subsection{Comparison with other methods}
 \label{Sec:sim-comp}
 
-In this section, we compare our proposed mFDR approach with other methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in Figure~\ref{Fig:diagram}, using $n = 400$ and $p = 1000$ with ten variables causally related to the outcome (like ``A''), such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each of these variables, we generate nine correlated ($\rho = 0.5$) variables (akin to ``B''). The remaining 900 variables are noise (akin to ``C''), however they are correlated with each other such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR upper bound will be conservative.
+In this section, we compare our proposed mFDR approach with other methods of variable selection used in the high-dimensional setting. We generate our data based upon the structure depicted in the causal diagram of Section~\ref{Sec:mfdr}, using $n = 400$ and $p = 1000$ with ten variables causally related to the outcome (like ``A''), such that $\beta_{1:10} = b$ and vary $b$ throughout the study. Corresponding to each of these variables, we generate nine correlated ($\rho = 0.5$) variables (akin to ``B''). The remaining 900 variables are noise (akin to ``C''), however they are correlated with each other such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$, thereby creating a situation where the mFDR upper bound will be conservative.
 
 \begin{figure} [htb!]
  \centering
@@ -260,7 +261,7 @@ The comparison of FDR control procedures for the lasso (mFDR, sample splitting, 
 \begin{figure} [!ht]
  \centering
   \includegraphics[width=0.75\textwidth]{fig4.pdf}
-  \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in Figure~\ref{Fig:diagram}, when cross-validation is used to select $\lam$.}
+  \caption{\label{Fig:cv} The average number of selections for each type of variable depicted in the causal diagram of Section~\ref{Sec:mfdr}, when cross-validation is used to select $\lam$.}
 \end{figure}
 
 Simulation results for cross validation are shown in Figure~\ref{Fig:cv}.  As the figure shows, while cross-validation has excellent sensitivity, selecting nearly all the causal (``A'') variables even at low signal strength, it does not control the number of false selections.  In fact, at all levels of $b$, the majority of the features in the CV-selected model are noise features.  This problem becomes increasingly worse as the signal strength increases.  For example, at $b=0.8$, over 70\% of the features in the CV model are noise features.  In contrast, as may be seen in Figure~\ref{Fig:univariate}, the vast majority of the features selected by the mFDR control approach are causally related to the outcome.
@@ -272,7 +273,7 @@ The mFDR control approach also selects far fewer noise (``C'') variables than un
 \begin{figure} [!htb]
  \centering
   \includegraphics[width=0.8\textwidth]{fig5.pdf}
-  \caption{\label{Fig:univariate} The average number of selections, for each type of variable depicted in Figure~\ref{Fig:diagram}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
+  \caption{\label{Fig:univariate} The average number of selections, for each type of variable depicted in the causal diagram of Section~\ref{Sec:mfdr}, is plotted as function of $\beta$ for each method which controls the false discovery rate.}
 \end{figure}
 
 For this reason, Figure~\ref{Fig:univariate} is potentially somewhat misleading in terms of comparing mFDR and univariate testing in terms of their power to identify type ``A'' features.
@@ -315,20 +316,36 @@ Figure~\ref{Fig:Shedden} illustrates the mFDR estimates for this study.  On the 
 
 \begin{table}[htb!]
 \centering
-\caption{\label{Tab:shedden} Results comparing different $\lambda$ choices, along the default sequence generated by {\tt ncvreg}, using the lasso and MCP penalties on the Shedden data }
-\begin{tabular}{c | r r r r r }
+\caption{\label{Tab:shedden} Results comparing different $\lambda$ choices, along the default sequence generated by {\tt ncvreg}, using the lasso and MCP penalties on the Shedden and Spira data}
+\vspace{.2cm}
+\begin{tabular}{l r r r r r r }
+ Shedden Case Study & & & & & & \\
   \hline
-lasso & $\lambda$ & EF & S & mFDR & cross validation error \\ 
+lasso & $\lambda$ & EF & S & mFDR & cross validation error & misclassification error  \\ 
 	\hline
-	CV & 0.1215 & 9.16 & 13 & 70.4\% &  1307.9 \\
-	CV(1se) & 0.180  &  0 &  0 &  -  & 1320.2 \\
-	mFDR & 0.146 & 0.52 & 8 & 6.6\% & 1313.3 \\
+	CV & 0.1215 & 9.16 & 13 & 70.4\% & 1307.9 & -  \\
+	CV(1se) & 0.180  &  0 &  0 &  -  & 1320.2 & -  \\
+	mFDR & 0.146 & 0.52 & 8 & 6.6\% & 1313.3 &  - \\
 \hline
-MCP & $\lambda$ & EF & S & mFDR  & CV error \\
+MCP & $\lambda$ & EF & S & mFDR  & cross validation error & misclassification error  \\
 	\hline
-	CV & 0.1331 & 2.53 & 8 & 31.7\% &  1309.7 \\
-	CV(1se) & 0.180 & 0 & 0 & - &  1320.4 \\
-	mFDR & 0.155 & 0.16 & 2 & 8.2\% &  1315.1 \\
+	CV & 0.1331 & 2.53 & 8 & 31.7\% & 1309.7 & -  \\
+	CV(1se) & 0.180 & 0 & 0 & - & 1320.4 & - \\
+	mFDR & 0.155 & 0.16 & 2 & 8.2\% & 1315.1 & - \\
+	\hline
+ Spira Case Study & & & & & & \\
+  \hline
+lasso & $\lambda$ & EF & S & mFDR & cross validation error & misclassification error  \\ 
+	\hline
+	CV & 0.0294 & 49 & 49 & 100\% & 0.995 & 24.5\%  \\
+	CV(1se) & 0.0627 & 32 & 32 & 100\% & 1.074 & 25.0\%  \\
+	mFDR & 0.146 & 0.785 & 10 & 7.8\% & 1.289 & 30.7\% \\
+\hline
+MCP & $\lambda$ & EF & S & mFDR & cross validation error & misclassification error  \\
+	\hline
+	CV & 0.0775 & 13 & 13 & 100\% & 1.113 & 30.2\% \\
+	CV(1se) & 0.0929 & 10 & 10 & 100\% & 1.182 & 33.3\%  \\
+	mFDR & 0.1508 & 0.42 & 5 & 8.4\% & 1.306 & 33.9\% \\
 		\hline
 \end{tabular}
 \end{table}
@@ -351,27 +368,7 @@ We also applied a large scale univariate testing approach to the Shedden data, f
 \citet{Spira2007} collected RNA expression data for 22,215 genes from histologically normal bronchial epitheliums of $n = 192$ smokers, of which 102 had developed lung cancer and 90 had not developed lung cancer.
 The goal of the study was to identify genes that are indicative of whether or not a smoker has lung cancer.  For our analysis we fit penalized logistic regression models, and compare the results using mFDR, cross validation, and the covariance test to choose $\lam$, as well as the genes selected via sample splitting.   We also compare these model-based approaches to the traditional univariate approach with false discovery rate control.
 
-\begin{table}[htb!]
-\centering
-\caption{\label{Tab:spira} Results comparing different approaches to selecting $\lam$ for the Spira data.}
-\begin{tabular}{c | r r r r r r }
-  \hline
-lasso & $\lambda$ & EF & S & mFDR & misclassification error & cross validation error \\ 
-	\hline
-	CV & 0.0294 & 49 & 49 & 100\% & 24.5\% & 0.995 \\
-	CV(1se) & 0.0627 & 32 & 32 & 100\% & 25.0\% & 1.074 \\
-	mFDR & 0.146 & 0.785 & 10 & 7.8\% &  30.7\% & 1.289 \\
-\hline
-MCP & $\lambda$ & EF & S & mFDR & misclassification error & cross validation error \\
-	\hline
-	CV & 0.0775 & 13 & 13 & 100\% & 30.2\% & 1.113 \\
-	CV(1se) & 0.0929 & 10 & 10 & 100\% & 33.3\% & 1.182 \\
-	mFDR & 0.1508 & 0.42 & 5 & 8.4\% &  33.9\% & 1.306 \\
-		\hline
-\end{tabular}
-\end{table}
-
-Table~\ref{Tab:spira} shows results for the Spira data at various $\lambda$ values for the lasso and MCP penalty functions.  In contrast with the Shedden case study, for both penalties in this example the mFDR bound is 100\% at the value of $\lam$ selected by cross validation.  In other words, we are unable to provide an upper bound for the mFDR at the value of $\lam$, and one should be cautious about interpreting the selected features as significant.  For example, at $\lam=0.0294$, there may very well be some true discoveries among the 49 selected features, but a lasso-penalized logistic regression model could easily select 49 features just by chance at that value of $\lam$ even if none of them were related to the outcome.
+Table~\ref{Tab:shedden} shows results for the Spira data at various $\lambda$ values for the lasso and MCP penalty functions.  In contrast with the Shedden case study, for both penalties in this example the mFDR bound is 100\% at the value of $\lam$ selected by cross validation.  In other words, we are unable to provide an upper bound for the mFDR at the value of $\lam$, and one should be cautious about interpreting the selected features as significant.  For example, at $\lam=0.0294$, there may very well be some true discoveries among the 49 selected features, but a lasso-penalized logistic regression model could easily select 49 features just by chance at that value of $\lam$ even if none of them were related to the outcome.
 
 In order to arrive at a set of features with a low false discovery rate, we much choose a much smaller model (for the lasso model, 10 features instead of 49).  As in the earlier case study, however, the price of an FDR restriction is a decrease in prediction accuracy.  The prediction error is considerably higher in the $\mFDR < 10\%$ lasso and MCP models than for the models selected by cross-validation.  In the Spira example, no genes have particularly large signals; as a result, the MCP approach is less successful than at finding a model that is attractive from both the mFDR and prediction perspectives than it was in the Shedden example.
 
@@ -387,20 +384,20 @@ However, as in the earlier case study, fully conditional and pathwise conditiona
 
 Controlling the marginal false discovery rate of a penalized likelihood model is a useful way of assessing the reliability of a selected set of features. Unlike other approaches that have a similar goal, such as sample splitting or the covariance test, the mFDR approach uses a less strict definition of a false discovery which does not require conditioning on any other variables and consequently only limits the selection of variables that are noise in an unconditional -- i.e., marginal -- sense.  The simulations in this paper demonstrate that while mFDR is based upon a weaker false discovery definition, when used in combination with a penalized regression model it tends to perform very well at limiting the number of indirect (non-causal) feature selections.
 
-\begin{table}[ht]
- \caption{\label{Tab:time} Elapsed time, in seconds, of each approach in our case study analyses.}
-\centering
-\begin{tabular}{rrrrr}
-  \hline
- & mFDR & Sample Splitting & CovTest & Univariate Testing \\ 
-  \hline
-	Shedden & 7.0 & 1882.9 & NA & 232.1 \\
-Spira & 1.4 & 568.1 & 571.1 & 41.0 \\ 
-   \hline
-\end{tabular}
-\end{table}
+%\begin{table}[ht]
+% \caption{\label{Tab:time} Elapsed time, in seconds, of each approach in our case study analyses.}
+%\centering
+%\begin{tabular}{rrrrr}
+%  \hline
+% & mFDR & Sample Splitting & CovTest & Univariate Testing \\ 
+%  \hline
+%	Shedden & 7.0 & 1882.9 & NA & 232.1 \\
+%Spira & 1.4 & 568.1 & 571.1 & 41.0 \\ 
+%   \hline
+%\end{tabular}
+%\end{table}
 
-Furthermore, mFDR is far more convenient from the standpoint of computational burden than other approaches.  Table~\ref{Tab:time} displays the run time of each analysis approach used on the case study data of Section 4. For the Spira data, where $n = 192$ and $p =22215$, using {\tt ncvreg} to fit a penalized logistic regression model and then estimating the mFDR for the entire $\lam$ sequence takes only 1.4 seconds.  This is over 400 times faster than sample splitting and CovTest, and nearly 30 times faster than even univariate testing.
+Furthermore, mFDR is far more convenient from the standpoint of computational burden than other approaches. For the Spira data, where $n = 192$ and $p =22215$, using {\tt ncvreg} to fit a penalized logistic regression model and then estimating the mFDR for the entire $\lam$ sequence takes only 1.4 seconds.  This is over 400 times faster than sample splitting and CovTest, which take 568 and 571 seconds respectively, and is nearly 30 times faster than even univariate testing which takes 232 seconds.
 Results are similar for the Shedden survival analysis.  The computational efficiency of mFDR makes it a particularly appealing tool during the early stages of an analysis when a number of candidate models are being considered.
 
 The mFDR control procedure proposed here is currently implemented in the R package {\tt ncvreg} \citep{Breheny2011} using the {\tt mFDR} function. The function accepts an ncvreg fitted model and calculates the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model.  The package also provides a plotting method, which produces plots like those in Figure~\ref{Fig:Shedden}.  The {\tt ncvreg} package accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized linear, logistic, and Cox regression models.
