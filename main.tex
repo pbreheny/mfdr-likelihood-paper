@@ -129,7 +129,24 @@ This leads to the following upper bounds for the number and rate of marginal fal
   \widehat{\FD} &= 2 \sum_{j=1}^{p} \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)\\
   \widehat{\mFDR} &= \frac{\widehat{\FD}}{|S|},
 }
-where $S$ is the set of selected variables and $|S|$ its size.  Note that because $p$ is used as an upper bound for the total number of noise features, $\widehat{\FD}$ and $\widehat{\mFDR}$ will be somewhat conservative even when (A1)-(A3) are fully satisfied.  However, in the scenario where most features are null, as is often presumed in high dimensional applications, this effect will be relatively minor.
+where $S$ is the set of selected variables and $|S|$ its size.  Note that because $p$ is used as an upper bound for the total number of noise features, $\widehat{\FD}$ and $\widehat{\mFDR}$ will be somewhat conservative even when (A1)-(A3) are fully satisfied.  However, in the scenario where most features are null, as is often presumed in high dimensional applications, this effect will be relatively minor.  For a given value of $\lambda$ the process of calculating $\widehat{\mFDR}$ is encapsulated by Algorithm~\ref{Alg:mfdr}.
+
+
+\begin{algorithm*}
+\caption{Calculating the mFDR upper bound}\label{Alg:mfdr}
+\begin{algorithmic}[10]
+\Procedure{}{}
+	\State Estimate $\widehat{W} \gets \nabla^2f(\beh)$
+	\For {\texttt{$j \in \{1, \ldots, p\}$}}
+		\State $\hat{v}_j \gets \x_j^T\widehat{W}\x_j$
+		\State $\widehat{\FD}_{j, \lam} = 2 \Phi \left(\frac{-n\lam}{\sqrt{\hat{v}_j}}\right)$  by the distributional result of Theorem 1
+	\EndFor
+	\State $\widehat{\FD}_\lam =  \sum_{j=1}^{p} \widehat{\FD}_{j, \lam}$
+	\State $\widehat{\mFDR}_\lam = \text{min}\left(\frac{\widehat{\FD}_\lam}{|S_\lam|}, 1 \right)$
+\EndProcedure
+\State \textbf{return} $\widehat{\mFDR}_\lam $
+\end{algorithmic}
+\end{algorithm*}
 
 \subsection{Other penalty functions}
 

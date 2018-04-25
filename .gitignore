@@ -1,8 +1,10 @@
 Older Versions
 !fig/*
 !*.bib
-./*.*
+*synctex*
+ims.bst
 !main.tex
 !mfdr-lik.tex
 !Makefile
 v/arxiv/mfdr-lik.tex
+v/biometrics/fig
