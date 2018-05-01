@@ -1,4 +1,4 @@
-mfdr-lik.pdf: mfdr-lik.tex main.tex
+mfdr-lik.pdf: mfdr-lik.tex main.tex mfdr_references.bib
 	pdflatex mfdr-lik
 	bibtex mfdr-lik
 	pdflatex mfdr-lik
