@@ -1,0 +1,123 @@
+\documentclass[bimj,fleqn]{w-art}
+\usepackage{times}
+\usepackage{w-thm}
+\usepackage[authoryear]{natbib}
+\setlength{\bibsep}{2pt}
+\setlength{\bibhang}{2em}
+\newcommand{\J}{J\"{o}reskog}
+\newcommand{\So}{S\"{o}rbom}
+\theoremstyle{plain}
+\newtheorem{criterion}{Criterion}
+\theoremstyle{definition}
+\newtheorem{condition}[theorem]{Condition}
+\usepackage[]{graphicx}
+\chardef\bslash=`\\ % p. 424, TeXbook
+\newcommand{\ntt}{\normalfont\ttfamily}
+\newcommand{\cn}[1]{{\protect\ntt\bslash#1}}
+\newcommand{\pkg}[1]{{\protect\ntt#1}}
+\let\fn\pkg
+\let\env\pkg
+\let\opt\pkg
+\hfuzz1pc % Don't bother to report overfull boxes if overage is < 1pc
+\newcommand{\envert}[1]{\left\lvert#1\right\rvert}
+\let\abs=\envert
+
+%% Begin custom
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\graphicspath{{fig/}}
+\usepackage[space]{grffile}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\usepackage{natbib}
+
+\renewcommand{\H}{\mathbf{H}}
+\providecommand{\I}{\mathbf{I}}
+\providecommand{\s}{\mathbf{s}}
+\renewcommand{\u}{\mathbf{u}}
+\providecommand{\V}{\mathbf{V}}
+\providecommand{\W}{\mathbf{W}}
+\providecommand{\x}{\mathbf{x}}
+\providecommand{\X}{\mathbf{X}}
+\providecommand{\y}{\mathbf{y}}
+\providecommand{\bb}{\boldsymbol{\beta}}
+\providecommand{\bh}{\hat{\beta}}
+\providecommand{\bbh}{\hat{\boldsymbol{\beta}}}
+\providecommand{\be}{\boldsymbol{\eta}}
+\providecommand{\beh}{\hat{\boldsymbol{\eta}}}
+\providecommand{\bg}{\boldsymbol{\gamma}}
+\providecommand{\lam}{\lambda}
+\providecommand{\cA}{\mathcal{A}}
+\providecommand{\cC}{\mathcal{C}}
+\providecommand{\cM}{\mathcal{M}}
+\providecommand{\cN}{\mathcal{N}}
+\providecommand{\cS}{\mathcal{S}}
+\providecommand{\FD}{\textrm{FD}}
+\providecommand{\mFDR}{\textrm{mFDR}}
+\providecommand{\zero}{\mathbf{0}}
+\providecommand{\abs}[1]{\left\lvert#1\right\rvert}
+\providecommand{\al}[2]{\begin{align}\label{#1}#2\end{align}}
+\providecommand{\as}[1]{\begin{align*}#1\end{align*}}
+\providecommand{\als}[2]{\begin{align}\label{#1}\begin{split}#2\end{split}\end{align}}
+\providecommand{\inP}{\overset{p}{\longrightarrow}}
+\providecommand{\inD}{\overset{d}{\longrightarrow}}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\renewcommand{\cor}{\textrm{Cor}}
+
+%% End custom
+
+\begin{document}
+\DOIsuffix{bimj.DOIsuffix}
+%\DOIsuffix{bimj.200100000}
+\Volume{XX}
+\Issue{YY}
+\Year{2018}
+\pagespan{1}{}
+\keywords{Cox regression; False discovery rates; Generalized linear models; High-dimensional data analysis; Lasso; Penalized regression}
+%\noindent\hspace*{-4.2pc} Supporting Information for this article is available from the author or on the WWW under\break \hspace*{-4pc} \underline{http://dx.doi.org/10.1022/bimj.XXXXXXX} (please delete if not applicable)  %%% semicolon and fullpoint added here for keyword style
+
+\title[Marginal FDR control for penalized likelihood models]{Marginal false discovery rate control for likelihood-based penalized regression models}
+\author[Miller]{Ryan E. Miller\inst{1}
+  \address[\inst{1}]{Department of Biostatistics, University of Iowa, 145 N Riverside Dr, Iowa City, IA 52241, USA}}
+%%%%    Information for the second author
+\author[Breheny]{Patrick Breheny\footnote{Corresponding author: {\sf{e-mail: patrick-breheny@uiowa.edu}}}\inst{,1}}
+\Receiveddate{zzz} \Reviseddate{zzz} \Accepteddate{zzz} 
+
+\begin{abstract}
+  The popularity of penalized regression in high-dimensional data analysis has led to a demand for new inferential tools for these models. False discovery rate control is widely used in high-dimensional hypothesis testing, but has only recently been considered in the context of penalized regression.  Almost all of this work, however, has focused on lasso-penalized linear regression. In this paper, we derive a general method for controlling the marginal false discovery rate that can be applied to any penalized likelihood-based model, such as logistic regression and Cox regression. Our approach is fast, flexible and can be used with a variety of penalty functions including lasso, elastic net, MCP, and MNet.  We derive theoretical results under which the proposed method is valid, and use simulation studies to demonstrate that the approach is reasonably robust, albeit slightly conservative, when these assumptions are violated.  Despite being conservative, we show that our method often offers more power to select causally important features than existing approaches.  Finally, the practical utility of the method is demonstrated on gene expression data sets with binary and time-to-event outcomes.
+\end{abstract}
+
+\maketitle
+
+% Produces the title.
+
+%% If there is not enough space inside the running head
+%% for all authors including the title you may provide
+%% the leftmark in one of the following three forms:
+
+%% \renewcommand{\leftmark}
+%% {First Author: A Short Title}
+
+%% \renewcommand{\leftmark}
+%% {First Author and Second Author: A Short Title}
+
+%% \renewcommand{\leftmark}
+%% {First Author et al.: A Short Title}
+
+%% \tableofcontents  % Produces the table of contents.
+
+\input{main}
+
+\bibliographystyle{biom}
+\bibliography{mfdr_references}
+
+%\newpage
+%\phantom{aaaa}
+\end{document}

@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage[left=0.5in,right=0.5in,bottom=0.75in,top=0.75in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{color}
+\providecommand{\note}[1]{\textcolor{red}{#1}}
+
+\begin{document}
+
+\subsubsection*{Response to comments by Reviewer \#1}
+
+(BOILERPLATE, EDIT?:)
+
+Thank you very much for your detailed reading of the paper and your insightful comments and criticism. We have modified the manuscript in several places based upon your feedback and think that these revisions have considerably improved the revised submission.
+
+\begin{enumerate}
+
+\item {\em This marginal prospective: the statistical definition and considerations are well presented. But the question is: practically, how useful is this? That is, in a typical real data analysis, how many covariates are expected to be fully independent of the response?}
+
+In a real data analysis it is unknown how many covariates are fully independent of the response, in some cases it could be very few, while in others it could be nearly all.  However, in many situations where penalized regression is used the analyst is implicitly assuming that some of the covariates do not belong in the model, in these situations having a sense of the mFDR of the model can be useful. The two real data case studies involving high-dimensional genetic expression data provide an illustration of what the mFDR method has to offer.  For example, in the Shedden study, the mFDR suggests the analyst should be cautious about concluding that all of the genetic variables selected by the lasso model chosen by cross validation are actually related to the response.  For that particular model, up to 80\% of the selections could be marginal false discoveries.  However we can be very confident in some of those selections, which are present in the model where the mFDR is controlled at 10\%.
+
+Furthermore, in the simulation study of Sec 3.3, which compares mFDR with other existing approaches capable of controlling the false discovery rate of selections made using penalized GLM/Cox models, the mFDR method yields more causally important selections while controlling the false discovery rate, even though it's assumptions are violated in the setup of this simulation.  This simulation also illustrates that mFDR is capable of holding its own against large-scale univariate testing with FDR control, an approach that is quite common in practice.
+
+\item {\em The assumption of zero correlation may be too strong. How about weak correlations? Which may go to zero at a certain rate?}
+
+I'm not sure what to say about this one... My inclination is that so long as the correlations reach zero eventually there won't be any problems.  I'm not sure how to even go about making a mathematical argument for this though.
+
+\item {\em The authors consider the logistic and Cox regressions. I do not see a very strong reason for sticking to the two models, that is, it seems that a large number of models can be accommodated. Is this true? If so, it definitely should be pointed out.}
+
+This is fair and I think do more to point out that while we chose to focus on logistic and Cox regression because of their prevalence, the method can be applied to a wide range of likelihood based penalized regression models.
+
+\item {\em The condition on dimensionality is not clear. Does the approach demand a finite number of covariates? If so, this is a limitation; and should be clarified. And discussions on possibly accommodating high dimensional data should be provided.}
+
+By simulation the method is useful for p > n scenarios.  We could potentially add a simulation displaying one of the S shaped figures (the ones produced by default using plot.mfdr) for something like p = 10*n.  In terms of the proof, my first impression is that p -> Inf for finite n is problematic, though the proof already relies on n -> Inf, so I guess things will likely depend on if p is increasing faster than n.  Maybe the best approach for us to include a section discussing it as a potential area of future development? I'm not well-versed on high-dimensional asymptotic theory, so it'd be hard for me to provide any solid claims about what will happen in the proof.
+
+\end{enumerate}
+
+%\bibliographystyle{ims-nourl}
+%\bibliography{articles}
+
+\end{document}
