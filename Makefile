@@ -1,9 +1,5 @@
 mfdr-lik.pdf: mfdr-lik.tex main.tex mfdr_references.bib
-	pdflatex mfdr-lik
-	bibtex mfdr-lik
-	pdflatex mfdr-lik
-	pdflatex mfdr-lik
-	texwc
+	cleantex -b mfdr-lik
 
 clean:
 	rm mfdr-lik.aux
