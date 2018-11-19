@@ -10,7 +10,7 @@
 
 \subsubsection*{Response to comments by Reviewer \#1}
 
-Thank you very much for your detailed reading of the paper and your insightful questions. You raise a number of good points and we have modified the manuscript in several places based upon your feedback.  In our opinion, these revisions have had a nicely improved upon the original submission.
+Thank you very much for your detailed reading of the paper and your insightful questions. You raise a number of good points and we have modified the manuscript in several places based upon your feedback.  In our opinion, these revisions have nicely improved upon the original submission.
 
 \begin{enumerate}
 
@@ -19,10 +19,10 @@ Thank you very much for your detailed reading of the paper and your insightful q
   You raise a good point -- certainly, the real world is messy and full of indirect connections, making complete independence unlikely to be literally true.  However, we would argue that this is often true in hypothesis testing.  Is a null hypothesis of precisely zero effect realistic?  Usually not, but it is often informative to test the hypothesis anyway -- if it cannot be rejected, any claim about a positive or negative effect should be viewed skeptically.
 
   This is very much how we see the value of the proposed mFDR approach: yes, its framework is surely an oversimplification, but it provides a straightforward and informative answer about how much trust you should place in the selected variables.  For example, in the Shedden study, the mFDR suggests that up to 80\% of the genes selected by the lasso model with cross validation could be false discoveries.  It's possible that some of these genes have indirect relationships with survival, but the point is that for this model, you would select almost as many genes just by random chance even if none of them were related to survival.  However, we {\em can} be confident about some of the genes selected: those which are present in the model where the mFDR is controlled at 10\%.
-  
-  \note{We have revised the paper to bring up and discuss this point.}
 
-  % NOTE: I can't decide if this should go in or not...nicely written, but I feel like we already make these points in the manuscript.
+  We now include a paragraph in the discussion (``A natural question is whether marginal independence is a realistic assumption\ldots'') raising this question and discussing it much as we have in this response.
+  
+  % NOTE: I (PB) cut this paragraph...it is well written, but I feel like we already make these points in the manuscript.
   % Furthermore, in the simulation study of Sec 3.3, which compares mFDR with other existing approaches capable of controlling the false discovery rate of selections made using penalized GLM/Cox models, the mFDR method yields more causally important selections while controlling the false discovery rate, even though it's assumptions are violated in the setup of this simulation.  This simulation also illustrates that mFDR is capable of holding its own against large-scale univariate testing with FDR control, an approach that is quite common in practice.
 
 \item {\em The assumption of zero correlation may be too strong. How about weak correlations? Which may go to zero at a certain rate?}
@@ -35,13 +35,13 @@ Thank you very much for your detailed reading of the paper and your insightful q
 
 \item {\em The authors consider the logistic and Cox regressions. I do not see a very strong reason for sticking to the two models, that is, it seems that a large number of models can be accommodated. Is this true? If so, it definitely should be pointed out.}
 
-  This is a good point -- we concentrated on these models because of how widely used they are, but our intention was indeed to demonstrate that these ideas apply to a wide range of models.  \note{We have revised the manuscript according....}
+  This is a good point -- we concentrated on these models because of how widely used they are, but our intention was indeed to demonstrate that these ideas apply to a wide range of models.  \note{We have revised the manuscript accordingly....}
 
 \item {\em The condition on dimensionality is not clear. Does the approach demand a finite number of covariates? If so, this is a limitation; and should be clarified. And discussions on possibly accommodating high dimensional data should be provided.}
 
   Our approach with this paper was to provide a proof in the fixed-$p$ case and to investigate the high-dimensional ($p>n$) performance of the method via simulation.  For example, in the simulation study of Section~3.3, $n=400$ and $p=1,000$.  In practice and in simulations, the method seems to work well for high-dimensional data -- better, in fact, than several competing approaches.
 
-  However, your point is well-taken -- it would certainly be of interest to attempt extending our proof of Theorem~1 to allow $p$ to increase as a function of $n$ as $n \to \infty$ and determine how this affects convergence.  \note{We now point this out in the paper and mention that extending the proof in this manner is an important subject for future research.}
+  However, your point is well-taken -- it would certainly be of interest to attempt extending our proof of Theorem~1 to allow $p$ to increase as a function of $n$ as $n \to \infty$ and determine how this affects convergence.  We now point out this limitation in the paper and mention that extending the proof in this manner is an important subject for future research.
 
 \end{enumerate}
 
