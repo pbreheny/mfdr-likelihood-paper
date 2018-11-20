@@ -199,7 +199,7 @@ In Section~\ref{Sec:main-results}, the mFDR bound \eqref{eq:mfdr} was shown to b
 We evaluate the accuracy of the mFDR bound by comparing $\widehat{\mFDR}$ with the true mFDR -- i.e., the empirical proportion of noise features selected -- at each value along a fixed $\lambda$ sequence, averaged across 1,000 simulated data sets.
 In this simulation, time-to-event outcomes were uncensored; the effect of censoring on $\widehat{\mFDR}$ is considered in the next section.
 
-We generate our data using $p = 40$ with $\beta_{1:4} = 10/\sqrt{n}$ and $\beta_{5:40} = 0$ while varying $n$ from 100 to 1,000 in increments of 100. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.
+We generate our data using $p = 100$ with $\beta_{1:4} = 10/\sqrt{n}$ and $\beta_{5:40} = 0$ while varying $n$ from 200 to 1,600 in increments of 200. We take $\bb$ to be function of $n$ in order to maintain the difficulty of the variable selection problem as $n$ increases.
 Without this provision, the feature selection problem becomes too easy at large sample sizes and the ``interesting'' region where the mFDR is not close to 0 or to 1 is very small.
 %Without this provision, when $n$ is large, all of the true variables are easily selected very early, while false selections are extremely rare until the very end of $\lambda$ sequence, which makes the ``interesting'' region (where the mFDR is not close to 0 or to 1) to be very small.
 
@@ -209,20 +209,20 @@ In total we assess twelve different scenarios consisting of each possible combin
 \item Three different regression methods: linear regression, logistic regression, and Cox regression
 \item Two different penalties: lasso and MCP. 
 \end{itemize}
-For our correlated setting noise variables are given an autoregressive correlation structure based upon their index such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the mean value of $\widehat{\mFDR}$ at the $\lambda$ value where the average observed proportion of noise variables is 10\%.
+For our correlated setting noise variables are given an autoregressive correlation structure based upon their index such that $\cor(\x_j,\x_k) = 0.8^{|j - k|}$. We display the mean value of $\widehat{\mFDR}$ at the $\lambda$ value where the average observed proportion of noise variables is 20\%.
 
 \begin{figure} [!htb]
  \centering
-  \includegraphics[width=.9\textwidth]{ggconverge3.pdf}
+  \includegraphics[width=.9\textwidth]{fig1.pdf}
   \caption{\label{Fig:converge}Finite-sample accuracy of the mFDR bound \eqref{eq:mfdr}.}
 \end{figure}
 
 Focusing first on the case of independent noise features, we see that unlike in the linear regression case, where $\widehat{\mFDR}$ is essentially perfect at all sample sizes considered, for logistic and Cox regression $\widehat{\mFDR}$ tends to provide a conservative upper bound at small sample sizes, although this effect does diminish and the bound becomes tighter as $n$ increases.
-Furthermore, the MCP penalty leads to faster convergence and tighter bounds than the lasso penalty; this is particularly noticeable in the logistic and Cox regression settings.
+Furthermore, the MCP penalty leads to slightly faster convergence and tighter bounds than the lasso penalty; this is particularly noticeable in the logistic and Cox regression settings.
 
 When noise features are correlated, the $\widehat{\mFDR}$ bound is always conservative, at all sample sizes.  In terms of Theorem~\ref{Thm:main}, when noise features are correlated, (A2) is violated because the term $\frac{1}{n}\x_j^T\W\X_{-j}$ does not converge to zero, leaving behind a remainder term that is unaccounted for in \eqref{eq:mfdr}.
 Nevertheless, while this does mean that the bound is less tight, it does not prevent the use of the method for the purposes of mFDR control.
-Furthermore, in this case, the effect is relatively slight: for the most part, $\widehat{\mFDR}$ is approximately 20\% when the true mFDR is 10\%.
+Furthermore, in this case, the effect is relatively slight: for the most part, $\widehat{\mFDR}$ is between 35\% and 40\% when the true mFDR is 20\%.
 % This issue is not unique to mFDR as many methods for controlling false discovery rates also tend to be conservative in correlated settings.
 %Generally speaking, this conservative nature is not viewed as a significant drawback to false discovery rates, as it still allows one to control the fraction of false discoveries.  
 
@@ -340,21 +340,21 @@ Figure~\ref{Fig:Shedden} illustrates the mFDR estimates for this study.  On the 
   & & \multicolumn{5}{c}{Shedden case study} & \multicolumn{6}{c}{Spira case study}\\
   & & $\lambda$ & EF & S & mFDR & CVE & $\lambda$ & EF & S & mFDR & CVE & MCE\\
   \hline
-  lasso & CV & 0.121 & 9.16 & 13 & 70.4 & 1308 & 0.029 & 49 & 49 & 100 & 1.00 & 24.5  \\
-  & CV(1se) & 0.180  &  0 &  0 &  -  & 1320 & 0.063 & 32 & 32 & 100 & 1.07 & 25.0  \\
-  & mFDR & 0.146 & 0.52 & 8 & 6.6 & 1313 & 0.146 & 0.78 & 10 & 7.8 & 1.29 & 30.7 \\
-  MCP & CV & 0.133 & 2.53 & 8 & 31.7 & 1310 & 0.077 & 13 & 13 & 100 & 1.11 & 30.2 \\
-  & CV(1se) & 0.180 & 0 & 0 & - & 1320 & 0.093 & 10 & 10 & 100 & 1.18 & 33.3  \\
-  & mFDR & 0.155 & 0.16 & 2 & 8.2 & 1315 & 0.151 & 0.42 & 5 & 8.4 & 1.31 & 33.9 \\
+  lasso & CV & 0.118 & 13.53 & 16 & 84.6 & 11.05 & 0.029 & 71 & 71 & 100 & 1.00 & 24.5  \\
+  & CV(1se) & 0.180  &  0 &  0 &  -  & 11.17 & 0.063 & 32 & 32 & 100 & 1.07 & 25.0  \\
+  & mFDR & 0.146 & 0.52 & 8 & 6.6 & 11.10 & 0.146 & 0.78 & 10 & 7.8 & 1.29 & 30.7 \\
+  MCP & CV & 0.155 & 0.16 & 8 & 8.2 & 11.21 & 0.067 & 14 & 14 & 100 & 1.13 & 29.7 \\
+  & CV(1se) & 0.180 & 0 & 0 & - & 11.22 & 0.093 & 10 & 10 & 100 & 1.19 & 31.8  \\
+  & mFDR & 0.155 & 0.16 & 2 & 8.2 & 11.21 & 0.151 & 0.42 & 5 & 8.4 & 1.29 & 35.9 \\
   \hline
 \end{tabular}
 \end{table}
 
 Table~\ref{Tab:case-studies} displays results for three potential approaches to choosing $\lam$: the value that minimizes cross-validation error (CV), the value that comes within 1 standard error (SE) of minimizing CV (1se), and the smallest value of $\lam$ satisfying $\mFDR < 10\%$.
 From the table, we can see that there appears to be an inherent tradeoff between the optimal prediction and restricting a model to containing few noise features.
-In this case, we see that the lasso model with lowest prediction error has an estimated mFDR of 70.4\%, indicating that despite its prediction accuracy, a substantial fraction of the 13 features selected by the model may be noise. Conversely, if we aim to control the mFDR at 10\%, we select only 8 features.  Although we can be more confident that these 8 features are truly related to survival, the model is somewhat less accurate from a prediction standpoint (CV error of 1313 compared to 1308).  The CV (1se) choice $\lam$ aims to select a parsimonious model whose accuracy is comparable with the best model \citep{Hastie2009}. However, in this example the CV (1se) method selects the null model, giving the impression that no genes can be reliably selected.  Note that the $\mFDR < 10\%$ approach is also within 1 SE of the best model, and therefore may also be thought of as striking an appropriate balance between prediction and parsimony in this example.
+In this case, we see that the lasso model with lowest prediction error has an estimated mFDR of 84.6\%, indicating that despite its prediction accuracy, a substantial fraction of the 16 features selected by the model may be noise. Conversely, if we aim to control the mFDR at 10\%, we select only 8 features.  Although we can be more confident that these 8 features are truly related to survival, the model is somewhat less accurate from a prediction standpoint (CV error of 1313 compared to 1308).  The CV (1se) choice $\lam$ aims to select a parsimonious model whose accuracy is comparable with the best model \citep{Hastie2009}. However, in this example the CV (1se) method selects the null model, giving the impression that no genes can be reliably selected.  Note that the $\mFDR < 10\%$ approach is also within 1 SE of the best model, and therefore may also be thought of as striking an appropriate balance between prediction and parsimony in this example.
 
-An alternative to lasso-penalized regression is to use the MCP penalty, which relaxes the degree of shrinkage for large coefficients, thereby allowing a smaller number of features to account for the observed signal.  Our approach indicates that the MCP model minimizing CV error is likely to have an mFDR no higher than 31.7\%; compared to the lasso model that minimized CV error, we can be considerably more confident in the smaller number of features selected by MCP.  The prediction accuracy of MCP was similar to lasso in this case (CV error 1310 vs. 1308), with the lasso being slightly more accurate and MCP slightly more parsimonious.
+An alternative to lasso-penalized regression is to use the MCP penalty, which relaxes the degree of shrinkage for large coefficients, thereby allowing a smaller number of features to account for the observed signal.  Our approach indicates that the MCP model minimizing CV error is likely to have an mFDR no higher than 8.2\%; compared to the lasso model that minimized CV error, we can be considerably more confident in the smaller number of features selected by MCP.
 
 MCP strikes an attractive balance in this case between prediction accuracy and false discovery rate.  One reason for this is that two genes, \textit{ZC2HC1A}, and \textit{FAM117A}, have very large effects, exactly the scenario MCP is designed to perform well in. In the lasso model with $\lambda$ selected by cross validation these variables have coefficients of -0.170 and -0.118 respectively, while in the MCP model these variables have coefficients of -0.220, -0.175 despite cross-validation selecting a larger $\lambda$ (more penalization) for MCP.  This illustrates the fact that lasso models can only accommodate large effects by lowering $\lambda$, which comes at the cost of allowing additional noise variables into the model.
 
@@ -368,9 +368,9 @@ We also applied a large scale univariate testing approach to the Shedden data, f
 \citet{Spira2007} collected RNA expression data for 22,215 genes from histologically normal bronchial epitheliums of $n = 192$ smokers, of which 102 had developed lung cancer and 90 had not developed lung cancer.
 The goal of the study was to identify genes that are indicative of whether or not a smoker has lung cancer.  For our analysis we fit penalized logistic regression models, and compare the results using mFDR, cross validation, and the covariance test to choose $\lam$, as well as the genes selected via sample splitting.   We also compare these model-based approaches to the traditional univariate approach with false discovery rate control.
 
-Table~\ref{Tab:case-studies} shows results for the Spira data at various $\lambda$ values for the lasso and MCP penalty functions.  In contrast with the Shedden case study, for both penalties in this example the mFDR bound is 100\% at the value of $\lam$ selected by cross validation.  In other words, we are unable to provide an upper bound for the mFDR at the value of $\lam$, and one should be cautious about interpreting the selected features as significant.  For example, at $\lam=0.029$, there may very well be some true discoveries among the 49 selected features, but a lasso-penalized logistic regression model could easily select 49 features just by chance at that value of $\lam$ even if none of them were related to the outcome.
+Table~\ref{Tab:case-studies} shows results for the Spira data at various $\lambda$ values for the lasso and MCP penalty functions.  In contrast with the Shedden case study, for both penalties in this example the mFDR bound is 100\% at the value of $\lam$ selected by cross validation.  In other words, we are unable to provide an upper bound for the mFDR at the value of $\lam$, and one should be cautious about interpreting the selected features as significant.  For example, at $\lam=0.029$, there may very well be some true discoveries among the 71 selected features, but a lasso-penalized logistic regression model could easily select 71 features just by chance at that value of $\lam$ even if none of them were related to the outcome.
 
-In order to arrive at a set of features with a low false discovery rate, we much choose a much smaller model (for the lasso model, 10 features instead of 49).  As in the earlier case study, however, the price of an FDR restriction is a decrease in prediction accuracy.  The prediction error is considerably higher in the $\mFDR < 10\%$ lasso and MCP models than for the models selected by cross-validation.  In the Spira example, no genes have particularly large signals; as a result, the MCP approach is less successful than at finding a model that is attractive from both the mFDR and prediction perspectives than it was in the Shedden example.
+In order to arrive at a set of features with a low false discovery rate, we much choose a much smaller model (for the lasso model, 10 features instead of 71).  As in the earlier case study, however, the price of an FDR restriction is a decrease in prediction accuracy.  The prediction error is considerably higher in the $\mFDR < 10\%$ lasso and MCP models than for the models selected by cross-validation.  In the Spira example, no genes have particularly large signals; as a result, the MCP approach is less successful than at finding a model that is attractive from both the mFDR and prediction perspectives than it was in the Shedden example.
 
 As in the Shedden case study, neither the sample splitting nor covariance testing approaches were able to select any genes at a 10\% FDR, nor could any genes be selected by either approach at the considerably more liberal cutoff of 50\%.
 %. Making just a single selection with these methods results in FDR estimates of 53.9\% and 62\% respectively.
@@ -400,7 +400,7 @@ Controlling the marginal false discovery rate of a penalized likelihood model is
 Furthermore, mFDR is far more convenient from the standpoint of computational burden than other approaches. For the Spira data, where $n = 192$ and $p =22,215$, fitting a penalized logistic regression model and then estimating the mFDR for the entire $\lam$ sequence takes only 1.4 seconds.  This is over 400 times faster than sample splitting and the covariance test, each of which took over 9 minutes, and is nearly 30 times faster than even univariate testing, which took over 3 minutes.
 Results are similar for the Shedden survival analysis.  The computational efficiency of mFDR makes it a particularly appealing tool during the early stages of an analysis when a number of candidate models are being considered.
 
-A natural question is whether marginal independence is a realistic assumption.  In many applications, complete independence is unlikely to be literally true.  However this is, in a sense, the point: if one selects 20 features and one would expect to select 16 of them even if all of those features were completely independent of the outcome, this calls into question the confidence with which we can claim associations between any given feature and the outcome.  A relevant analogy is with the testing of a point null hypothesis -- an effect of precisely zero may be unrealistic, if that hypothesis cannot be rejected, this is cause for skepticism.
+A natural question is whether marginal independence is a realistic assumption.  In many applications, complete independence is unlikely to be literally true.  However this is, in a sense, the point: if one selects 20 features and one would expect to select 16 of them even if all of those features were completely independent of the outcome, this calls into question the confidence with which we can claim associations between any given feature and the outcome.  A relevant analogy is the testing of a point null hypothesis -- an effect of precisely zero may be unrealistic, but if that hypothesis cannot be rejected there is cause for skepticism.
 
 The mFDR control procedure proposed here is currently implemented in the R package {\tt ncvreg} \citep{Breheny2011} using the {\tt mFDR} function. The function accepts an ncvreg fitted model and calculates the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model.  The package also provides a plotting method, which produces plots like those in Figure~\ref{Fig:Shedden}.  The {\tt ncvreg} package accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized linear, logistic, and Cox regression models.
 
