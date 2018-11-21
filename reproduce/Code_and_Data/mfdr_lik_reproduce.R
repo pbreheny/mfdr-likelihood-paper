@@ -19,6 +19,7 @@
 #install.packages('gridExtra')
 #install.packages('ggplot2')
 #install.packages('Rccp')
+library(ggplot2)
 library(ncvreg)
 library(Matrix)
 library(survival)
