@@ -148,7 +148,7 @@ where $S$ is the set of selected variables and $|S|$ its size.  Note that becaus
 
 It is worth noting that the version of Theorem~\ref{Thm:main} presented in this paper takes $p$ to be fixed.  It is of interest to extend Theorem~1 to allow $p \to \infty$ as $n \to \infty$ and determine how this affects convergence; we leave this as a topic to be pursued in a future manuscript.
 
-\subsection{Other penalty functions}
+\subsection{Penalty functions}
 
 The form of the mFDR calculation \eqref{eq:mfdr} is determined by the KKT conditions \eqref{eq:kkt}.  Although the theorem in previous Section is specific to the lasso, many other penalties proposed in the literature have very similar KKT conditions. This in turn allows our results to be easily extended to other penalized methods.
 
@@ -160,13 +160,16 @@ Furthermore, in some cases, such as for MCP and SCAD, the form of the upper boun
 
 It is worth noting here that MCP and SCAD differ from the the lasso by relaxing the degree of penalization on variables with large effects.  This leads to solutions with greater sparsity and reduced bias.  In particular, both theoretical analysis and simulation studies have demonstrated that convergence is typically faster for MCP and SCAD than for the lasso \citep{MCP,SCAD,Breheny2011}.  Thus, as we will see later in the paper, the accuracy of regularity condition (A3) is typically better at finite sample sizes for these estimators than for the lasso and as a consequence, the resulting mFDR bound is tighter (i.e., less conservative).
 
-\subsection{Logistic regression}
+\subsection{Likelihood models}
 
-So far we have presented our results in the general setting of penalized likelihood optimization. One specific type of model to which Section~\ref{Sec:main-results} applies is penalized logistic regression. Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
+The results derived in this manuscript are valid for any likelihood-based model for which classical asymptotic results hold, and are thus applicable to a wide variety of models.  In this section, we provide additional detail for two such models, logistic regression and Cox regression, that are of particular interest due to their widespread use.
 
+\subsubsection{Logistic regression}
+
+Suppose $y_i$ follows a Bernoulli distribution with success probability $\pi_i$. In logistic regression the logit of $\pi_i$ is modeled as a function of $\be = X\bb$.  This results in a likelihood consisting of the product of $n$ independent Bernoulli distributions with success probabilities $\pi_i = \exp(\x_i^T\bb)/\{1 + \exp(\x_i^T\bb)\}$ and $\W$ a diagonal matrix whose entries are given by $\pi_i(1-\pi_i)$.
 The asymptotic normality of the score function for logistic regression (A1) can be found in, e.g., \citet{McCullagh1989}, while necessary conditions for $\sqrt{n}$-consistency of the lasso estimates for logistic regression (A3) are established in \citet{SCAD}.
 
-\subsection{Cox regression}
+\subsubsection{Cox regression}
 \label{Sec:cox}
 
 The results of Section~\ref{Sec:main-results} also apply to penalized Cox proportional hazards regression. Here the outcome of interest contains two components: a time, $y_i$, along with an accompanying indicator variable, $d_i$, where $d_i = 1$ indicates $y_i$ is an observed event time and $d_i = 0$ indicates $y_i$ is a right censoring time.
@@ -405,3 +408,9 @@ A natural question is whether marginal independence is a realistic assumption.  
 The mFDR control procedure proposed here is currently implemented in the R package {\tt ncvreg} \citep{Breheny2011} using the {\tt mFDR} function. The function accepts an ncvreg fitted model and calculates the expected number of false discoveries, as well as the mFDR for each value of the $\lambda$ sequence used in fitting the model.  The package also provides a plotting method, which produces plots like those in Figure~\ref{Fig:Shedden}.  The {\tt ncvreg} package accommodates lasso, MCP, SCAD, elastic net, and MNet \citep{Huang2016} penalties and provides a convenient model summary measure for penalized linear, logistic, and Cox regression models.
 
 In summary, this manuscript has demonstrated how to extend control over the marginal false discovery rate for penalized regression models to any general likelihood-based loss function.  Controlling the mFDR is much faster, considerably less restrictive, and is conveniently available in an open-source software package.  The marginal false discovery rate is an easily interpreted and broadly useful approach to inference concerning the reliability of selected features in a penalized regression model, capable of being generalized to a wide variety of penalty functions and modeling frameworks.
+
+\bigskip
+
+\noindent {{\bf Supporting information}}
+
+\noindent Data and source code to reproduce all results and figures are available at \url{http://github.com/pbreheny/mfdr-likelihood-paper}.

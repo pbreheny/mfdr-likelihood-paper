@@ -35,7 +35,13 @@ Thank you very much for your detailed reading of the paper and your insightful q
 
 \item {\em The authors consider the logistic and Cox regressions. I do not see a very strong reason for sticking to the two models, that is, it seems that a large number of models can be accommodated. Is this true? If so, it definitely should be pointed out.}
 
-  This is a good point -- we concentrated on these models because of how widely used they are, but our intention was indeed to demonstrate that these ideas apply to a wide range of models.  \note{We have revised the manuscript accordingly....}
+  This is a good point -- we concentrated on these models because of how widely used they are, but our intention was indeed to demonstrate that these ideas apply to a wide range of models.  We have restructured Section 2 of the manuscript to make this point.  Section 2.4 is now titled ``Likelihood models'', and begins with the following introduction:
+
+\begin{quote}
+The results derived in this manuscript are valid for any likelihood-based model for which classical asymptotic results hold, and are thus applicable to a wide variety of models.  In this section, we provide additional detail for two such models, logistic regression and Cox regression, that are of particular interest due to their widespread use.
+\end{quote}
+
+The logistic regression and Cox regression portions of the paper are now subsections 2.4.1 and 2.4.2, respectively.
 
 \item {\em The condition on dimensionality is not clear. Does the approach demand a finite number of covariates? If so, this is a limitation; and should be clarified. And discussions on possibly accommodating high dimensional data should be provided.}
 

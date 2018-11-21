@@ -5,13 +5,4 @@ mfdr-lik.pdf: mfdr-lik.tex ../../main.tex
 	cp -r ../../fig ./
 	sed -i 's/author *= *{Kerby Shedden.*/author = {Kerby Shedden and others},/' mfdr_references.bib
 	sed -i 's/Volume *= *{}/Volume = {X}/' mfdr_references.bib
-	pdflatex mfdr-lik
-	bibtex mfdr-lik
-	pdflatex mfdr-lik
-	pdflatex mfdr-lik
-
-clean:
-	rm -f *.aux
-	rm -f *.bbl
-	rm -f *.blg
-	rm -f *.log
+	cleantex -b mfdr-lik
