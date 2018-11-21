@@ -6,3 +6,5 @@ v/biometrics/fig
 v/bimj*/main.tex
 v/bimj*/mfdr_references.bib
 v/bimj*/fig
+!v/bimj-2/*.pdf
+!v/bimj-2/*/*.pdf
